@@ -1,3 +1,20 @@
-# restaurant-ordering-system
+# Restaurant Ordering System
 
-This project implements a web-based platform for online restaurant ordering.
+A simple web-based restaurant ordering system built with Django and Python.
+
+## 🚀 Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone git@github.com:jaroslavszkandera/restaurant-ordering-system.git
+cd restaurant-ordering-system
+```
+
+### 2. Run the development server
+
+The project uses the [uv](https://docs.astral.sh/uv/) package manager.
+```bash
+uv manage.py migrate
+uv manage.py runserver
+```
