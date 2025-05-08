@@ -1,0 +1,7 @@
+<h1>Place an Order</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Place Order</button>
+</form>
+<a href="{% url 'index' %}">Back to Orders</a>
