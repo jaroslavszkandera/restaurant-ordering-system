@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "orders",
-    # "crispy_forms",  # For better form rendering
-    # "crispy_bootstrap5",  # Bootstrap 5 template pack
+    "crispy_forms",  # For better form rendering
+    "crispy_bootstrap5",  # Bootstrap 5 template pack
 ]
 
 MIDDLEWARE = [
@@ -65,7 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "orders.context_processors.cart_processor",
+                "orders.context_processors.cart_details",
             ],
         },
     },
@@ -130,8 +130,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Crispy forms
-# CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-# CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Authentication settings
 LOGIN_REDIRECT_URL = "index"

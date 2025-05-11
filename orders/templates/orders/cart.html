@@ -48,12 +48,12 @@
                 <td class="text-center">
                   <form method="post" action="{% url 'view_cart' %}" class="update-cart-form">
                     {% csrf_token %}
-                    {{ update_forms|get_item:item.id.cart_item_id }}
+                    {# REMOVE THIS LINE: {{ update_forms|get_item:item.id.cart_item_id }} #}
                     <input type="hidden" name="cart_item_id" value="{{ item.id }}">
                     <div class="quantity-control">
                       <button type="button" class="btn btn-sm btn-outline-secondary decrement-qty">-</button>
                       <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="10"
-                        class="form-control form-control-sm quantity-input">
+                        class="form-control form-control-sm quantity-input" data-item-id="{{ item.id }}">
                       <button type="button" class="btn btn-sm btn-outline-secondary increment-qty">+</button>
                     </div>
                     <button type="submit" class="btn btn-sm btn-success d-block mt-1 mx-auto update-btn">Update</button>
@@ -64,7 +64,7 @@
                   <form method="post" action="{% url 'view_cart' %}" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                    <input type="hidden" name="quantity" value="0">
+                    <input type="hidden" name="quantity" value="0"> {# This form handles removal #}
                     <button type="submit" class="btn btn-sm btn-danger">
                       <i class="fas fa-trash"></i>
                     </button>
