@@ -1,0 +1,104 @@
+/* Custom styles for Restaurant Ordering System */
+
+/* General styling */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Menu item cards */
+.menu-item-card {
+  height: 100%;
+  transition: transform 0.3s;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item-image {
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Category pills */
+.category-pill {
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.category-pill.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Cart quantity controls */
+.quantity-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 120px;
+  margin: 0 auto;
+}
+
+.quantity-input {
+  text-align: center;
+  width: 50px;
+  border-radius: 0;
+}
+
+/* Order status badges */
+.badge-pending {
+  background-color: #ffc107;
+}
+
+.badge-preparing {
+  background-color: #17a2b8;
+}
+
+.badge-ready {
+  background-color: #28a745;
+}
+
+.badge-completed {
+  background-color: #6c757d;
+}
+
+.badge-cancelled {
+  background-color: #dc3545;
+}
+
+/* Hero section on homepage */
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/img/hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 5rem 0;
+  margin-bottom: 2rem;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3rem 0;
+  }
+
+  .quantity-control {
+    margin-bottom: 1rem;
+  }
+}

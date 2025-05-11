@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu - Restaurant Name{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Our Menu</h1>
+
+<!-- Category Filter -->
+<div class="mb-4">
+  <div class="d-flex flex-wrap">
+    <a href="{% url 'menu' %}"
+      class="category-pill {% if not category %}active bg-primary text-white{% else %}bg-light{% endif %}">
+      All Items
+    </a>
+
+    {% for cat in categories %}
+    <a href="{% url 'menu_category' cat.id %}"
+      class="category-pill {% if category.id == cat.id %}active bg-primary text-white{% else %}bg-light{% endif %}">
+      {{ cat.name }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Menu Items -->
+<div class="row g-4">
+  {% for item in menu_items %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card menu-item-card">
+      {% if item.image %}
+      <img src="{{ item.image.url }}" class="card-img-top menu-item-image" alt="{{ item.name }}">
+      {% else %}
+      <div class="card-img-top menu-item-image bg-light d-flex align-items-center justify-content-center">
+        <i class="fas fa-utensils fa-3x text-secondary"></i>
+      </div>
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ item.name }}</h5>
+        <p class="card-text">{{ item.description|truncatechars:100 }}</p>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-primary fw-bold">${{ item.price }}</span>
+          <span class="badge bg-secondary">{{ item.category.name }}</span>
+        </div>
+
+        <form method="post" action="{% url 'add_to_cart' %}" class="add-to-cart-form">
+          {% csrf_token %}
+          <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+          <div class="row g-2">
+            <div class="col-5">
+              <div class="input-group">
+                <input type="number" name="quantity" value="1" min="1" max="10" class="form-control">
+              </div>
+            </div>
+            <div class="col-7">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-cart-plus me-1"></i> Add
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="alert alert-info">
+      No menu items available in this category.
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    // AJAX form submission for smoother UX
+    $('.add-to-cart-form').on('submit', function (e) {
+      e.preventDefault();
+
+      let form = $(this);
+      let url = form.attr('action');
+
+      $.ajax({
+        type: 'POST',
+        url: url,
+        data: form.serialize(),
+        success: function (data) {
+          // Show success message
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+
+          Toast.fire({
+            icon: 'success',
+            title: data.message
+          });
+
+          // Update cart count in navbar
+          $('.cart-count').text(data.cart_count);
+
+          // Reset quantity to 1
+          form.find('input[name="quantity"]').val(1);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

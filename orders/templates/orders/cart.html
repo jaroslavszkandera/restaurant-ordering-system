@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Cart - Restaurant Name{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Your Cart</h1>
+
+{% if cart_items %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Cart Items ({{ cart_items|length }})</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th class="text-center">Price</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-end">Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in cart_items %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                    {% if item.menu_item.image %}
+                    <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" class="me-3"
+                      style="width: 60px; height: 60px; object-fit: cover;">
+                    {% else %}
+                    <div class="me-3 bg-light d-flex align-items-center justify-content-center"
+                      style="width: 60px; height: 60px;">
+                      <i class="fas fa-utensils text-secondary"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                      <h6 class="mb-0">{{ item.menu_item.name }}</h6>
+                      <small class="text-muted">{{ item.menu_item.category.name }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center">${{ item.menu_item.price }}</td>
+                <td class="text-center">
+                  <form method="post" action="{% url 'view_cart' %}" class="update-cart-form">
+                    {% csrf_token %}
+                    {{ update_forms|get_item:item.id.cart_item_id }}
+                    <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+                    <div class="quantity-control">
+                      <button type="button" class="btn btn-sm btn-outline-secondary decrement-qty">-</button>
+                      <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="10"
+                        class="form-control form-control-sm quantity-input">
+                      <button type="button" class="btn btn-sm btn-outline-secondary increment-qty">+</button>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-success d-block mt-1 mx-auto update-btn">Update</button>
+                  </form>
+                </td>
+                <td class="text-end">${{ item.subtotal }}</td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'view_cart' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+                    <input type="hidden" name="quantity" value="0">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between mb-4">
+      <a href="{% url 'menu' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Order Summary</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <span>Subtotal:</span>
+          <span>${{ cart.total_price }}</span>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between mb-3">
+          <span class="fw-bold">Total:</span>
+          <span class="fw-bold">${{ cart.total_price }}</span>
+        </div>
+        <a href="{% url 'checkout' %}" class="btn btn-success w-100">
+          <i class="fas fa-check-circle me-2"></i>Proceed to Checkout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+  <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+  <h3>Your cart is empty</h3>
+  <p class="mb-4">Looks like you haven't added any items to your cart yet.</p>
+  <a href="{% url 'menu' %}" class="btn btn-primary">
+    <i class="fas fa-utensils me-2"></i>Browse Our Menu
+  </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    // Increment/decrement quantity
+    $('.increment-qty').click(function () {
+      let input = $(this).siblings('.quantity-input');
+      let value = parseInt(input.val());
+      if (value < 10) {
+        input.val(value + 1);
+      }
+    });
+
+    $('.decrement-qty').click(function () {
+      let input = $(this).siblings('.quantity-input');
+      let value = parseInt(input.val());
+      if (value > 1) {
+        input.val(value - 1);
+      }
+    });
+
+    // Auto-submit the form when clicking the trash icon
+    $('.remove-item').click(function () {
+      $(this).closest('form').submit();
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Restaurant Name{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center rounded">
+  <div class="container">
+    <h1 class="display-4">Welcome to Our Restaurant</h1>
+    <p class="lead">Delicious food delivered to your doorstep</p>
+    <a href="{% url 'menu' %}" class="btn btn-primary btn-lg mt-3">
+      <i class="fas fa-utensils me-2"></i>View Menu
+    </a>
+  </div>
+</div>
+
+<!-- Featured Categories -->
+<section class="my-5">
+  <h2 class="text-center mb-4">Our Menu Categories</h2>
+  <div class="row g-4">
+    {% for category in categories %}
+    <div class="col-md-4">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h3 class="card-title">{{ category.name }}</h3>
+          <p class="card-text">{{ category.description|truncatechars:100 }}</p>
+          <a href="{% url 'menu_category' category.id %}" class="btn btn-outline-primary">
+            View Items
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+      <p>No categories available. Check back soon!</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Featured Items -->
+<section class="my-5">
+  <h2 class="text-center mb-4">Featured Menu Items</h2>
+  <div class="row g-4">
+    {% for item in featured_items %}
+    <div class="col-md-4">
+      <div class="card menu-item-card">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" class="card-img-top menu-item-image" alt="{{ item.name }}">
+        {% else %}
+        <div class="card-img-top menu-item-image bg-light d-flex align-items-center justify-content-center">
+          <i class="fas fa-utensils fa-3x text-secondary"></i>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ item.name }}</h5>
+          <p class="card-text">{{ item.description|truncatechars:80 }}</p>
+          <p class="card-text text-primary fw-bold">${{ item.price }}</p>
+          <div class="d-grid">
+            <a href="{% url 'menu' %}" class="btn btn-primary">
+              <i class="fas fa-cart-plus me-2"></i>Order Now
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+      <p>No featured items available. Check back soon!</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Order Process -->
+<section class="my-5">
+  <h2 class="text-center mb-4">How It Works</h2>
+  <div class="row g-4 text-center">
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="display-4 mb-3 text-primary">
+            <i class="fas fa-list-ul"></i>
+          </div>
+          <h4 class="card-title">1. Choose Your Items</h4>
+          <p class="card-text">Browse our menu and select your favorite dishes.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="display-4 mb-3 text-primary">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <h4 class="card-title">2. Review Your Cart</h4>
+          <p class="card-text">Check your selected items and adjust quantities if needed.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="display-4 mb-3 text-primary">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h4 class="card-title">3. Confirm & Enjoy</h4>
+          <p class="card-text">Complete your order and get ready for a delicious meal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
