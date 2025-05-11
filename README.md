@@ -15,6 +15,6 @@ cd restaurant-ordering-system
 
 The project uses the [uv](https://docs.astral.sh/uv/) package manager.
 ```bash
-uv manage.py migrate
-uv manage.py runserver
+uv run manage.py migrate
+uv run manage.py runserver
 ```
