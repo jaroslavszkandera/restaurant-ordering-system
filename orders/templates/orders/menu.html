@@ -1,109 +1,152 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Menu - Restaurant Name{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Our Menu</h1>
+<div class="container mt-4">
+  <header class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Our Delicious Menu</h1>
+    <p class="lead text-muted">Explore our wide variety of dishes, crafted with the freshest ingredients.</p>
+  </header>
 
-<!-- Category Filter -->
-<div class="mb-4">
-  <div class="d-flex flex-wrap">
-    <a href="{% url 'menu' %}"
-      class="category-pill {% if not category %}active bg-primary text-white{% else %}bg-light{% endif %}">
-      All Items
-    </a>
-
-    {% for cat in categories %}
-    <a href="{% url 'menu_category' cat.id %}"
-      class="category-pill {% if category.id == cat.id %}active bg-primary text-white{% else %}bg-light{% endif %}">
-      {{ cat.name }}
-    </a>
-    {% endfor %}
+  <div class="mb-4 text-center">
+    <div class="d-inline-flex flex-wrap justify-content-center p-2 bg-white rounded shadow-sm">
+      <a href="{% url 'menu' %}" class="category-pill {% if not category %}active{% endif %}">
+        All Items
+      </a>
+      {% for cat_obj in categories %}
+      <a href="{% url 'menu_category' cat_obj.id %}"
+        class="category-pill {% if category and category.id == cat_obj.id %}active{% endif %}">
+        {{ cat_obj.name }}
+      </a>
+      {% endfor %}
+    </div>
   </div>
-</div>
 
-<!-- Menu Items -->
-<div class="row g-4">
-  {% for item in menu_items %}
-  <div class="col-md-6 col-lg-4">
-    <div class="card menu-item-card">
-      {% if item.image %}
-      <img src="{{ item.image.url }}" class="card-img-top menu-item-image" alt="{{ item.name }}">
-      {% else %}
-      <div class="card-img-top menu-item-image bg-light d-flex align-items-center justify-content-center">
-        <i class="fas fa-utensils fa-3x text-secondary"></i>
-      </div>
-      {% endif %}
-      <div class="card-body">
-        <h5 class="card-title">{{ item.name }}</h5>
-        <p class="card-text">{{ item.description|truncatechars:100 }}</p>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-primary fw-bold">${{ item.price }}</span>
-          <span class="badge bg-secondary">{{ item.category.name }}</span>
+  {% if menu_items %}
+  <div class="row g-4">
+    {% for item in menu_items %}
+    <div class="col-sm-6 col-lg-4 col-xl-3 d-flex align-items-stretch">
+      <div class="card menu-item-card w-100">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" class="card-img-top menu-item-image" alt="{{ item.name }}">
+        {% else %}
+        <div
+          class="card-img-top menu-item-image bg-light d-flex align-items-center justify-content-center text-secondary">
+          <i class="fas fa-utensils fa-4x"></i>
         </div>
+        {% endif %}
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ item.name }}</h5>
+          <p class="card-text text-muted small flex-grow-1">{{ item.description|truncatechars:90 }}</p>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="h5 text-primary fw-bold mb-0">${{ item.price }}</span>
+            <span class="badge bg-info text-dark">{{ item.category.name }}</span>
+          </div>
 
-        <form method="post" action="{% url 'add_to_cart' %}" class="add-to-cart-form">
-          {% csrf_token %}
-          <input type="hidden" name="menu_item_id" value="{{ item.id }}">
-          <div class="row g-2">
-            <div class="col-5">
-              <div class="input-group">
-                <input type="number" name="quantity" value="1" min="1" max="10" class="form-control">
-              </div>
-            </div>
-            <div class="col-7">
-              <button type="submit" class="btn btn-primary w-100">
+          <form method="post" action="{% url 'add_to_cart' %}" class="add-to-cart-form mt-auto">
+            {% csrf_token %}
+            <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <div class="input-group">
+              <input type="number" name="quantity" value="1" min="1" max="10"
+                class="form-control form-control-sm quantity-input" aria-label="Quantity">
+              <button type="submit" class="btn btn-primary btn-sm add-to-cart-btn">
                 <i class="fas fa-cart-plus me-1"></i> Add
               </button>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
+    {% endfor %}
   </div>
-  {% empty %}
+  {% else %}
   <div class="col-12">
-    <div class="alert alert-info">
-      No menu items available in this category.
+    <div class="alert alert-info text-center py-4">
+      <h4><i class="fas fa-info-circle me-2"></i>No Menu Items Found</h4>
+      <p class="mb-0">
+        {% if category %}
+        There are currently no items available in the <strong>{{ category.name }}</strong> category.
+        {% else %}
+        Our menu is currently empty. Please check back soon!
+        {% endif %}
+      </p>
     </div>
   </div>
-  {% endfor %}
+  {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
   $(document).ready(function () {
-    // AJAX form submission for smoother UX
     $('.add-to-cart-form').on('submit', function (e) {
       e.preventDefault();
-
       let form = $(this);
       let url = form.attr('action');
+      let button = form.find('.add-to-cart-btn');
+      let originalButtonText = button.html();
+      button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...');
 
       $.ajax({
         type: 'POST',
         url: url,
         data: form.serialize(),
         success: function (data) {
-          // Show success message
-          const Toast = Swal.mixin({
+          if (data.status === 'success') {
+            Swal.fire({
+              toast: true,
+              icon: 'success',
+              title: data.message || 'Item added to cart!',
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            if (data.cart_total_quantity !== undefined) {
+              $('.cart-count').text(data.cart_total_quantity);
+            }
+
+            form.find('.quantity-input').val(1); // Reset quantity
+          } else {
+            let errorMessage = "An error occurred.";
+            if (data.errors) {
+              errorMessage = Object.values(data.errors).flat().join("<br>");
+            } else if (data.message) {
+              errorMessage = data.message;
+            }
+            Swal.fire({
+              toast: true,
+              icon: 'error',
+              title: 'Error',
+              html: errorMessage,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000
+            });
+          }
+        },
+        error: function (xhr) {
+          let errorMsg = 'Error adding item. Please try again.';
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            errorMsg = xhr.responseJSON.message;
+          } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+            errorMsg = Object.values(xhr.responseJSON.errors).flat().join("<br>");
+          }
+          Swal.fire({
             toast: true,
+            icon: 'error',
+            title: 'Oops...',
+            html: errorMsg,
             position: 'top-end',
             showConfirmButton: false,
             timer: 3000
           });
-
-          Toast.fire({
-            icon: 'success',
-            title: data.message
-          });
-
-          // Update cart count in navbar
-          $('.cart-count').text(data.cart_count);
-
-          // Reset quantity to 1
-          form.find('input[name="quantity"]').val(1);
+        },
+        complete: function () {
+          button.prop('disabled', false).html(originalButtonText);
         }
       });
     });
