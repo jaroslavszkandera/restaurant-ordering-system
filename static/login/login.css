@@ -1,0 +1,28 @@
+.custom-login-btn {
+background-color: yellow !important;
+color: black !important;
+font-weight: bold;
+border: 2px solid yellow !important;
+transition: all 0.3s ease;
+border-radius: 999px !important;
+margin-top: 20px;
+}
+
+.custom-login-btn:hover {
+background-color: transparent !important;
+color: white !important;
+border: 2px solid yellow !important;
+}
+
+.form-control {
+  background-color: #333 !important;
+  color: white !important;
+  border: 1.3px solid white !important;
+  box-shadow: inset 0 0 25px black; /* 向內黑色陰影 */
+  transition: box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 10px white !important; /* 向外白色陰影 */
+  outline: none !important; 
+}

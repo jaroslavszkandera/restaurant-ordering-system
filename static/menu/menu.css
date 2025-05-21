@@ -1,0 +1,350 @@
+.menu-header {
+  padding-bottom: 50px;
+  padding-top: 130px;
+}
+
+.menu-header h1 {
+  font-size: 2.5rem;
+  padding-bottom: 30px;
+}
+
+.menu-header p {
+  font-size: 1rem;
+}
+
+.category-carousel {
+  margin: 2rem 1rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 0.5rem;
+  margin-bottom: 80px;
+}
+
+.scroll-btn {
+  background: none;
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 0 1rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
+}
+
+.scroll-btn:hover:not(.disabled) {
+  opacity: 0.7;
+}
+
+.category-list-wrapper {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  flex-grow: 1;
+  scrollbar-width: none;
+}
+
+.category-list-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.category-list {
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+  min-width: fit-content;
+  padding: 0 10px;
+}
+
+.category-btn {
+  white-space: nowrap;
+  padding: 0.5rem 1.2rem;
+  background: #333;
+  color: white;
+  border: none;
+  flex: 0 0 auto;
+  width: 150px;
+  text-align: center;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.category-btn.active {
+  background-color: yellow;
+  color: black;
+  font-weight: bold;
+}
+
+.menu-grid {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 3rem;
+  row-gap: 3rem;
+  justify-content: center;
+}
+
+.menu-card {
+  width: 400px;
+  height: 200px;
+  display: flex;
+  gap: 5px;
+  background-color: transparent;
+  border-radius: 1rem;
+  overflow: hidden;
+  padding: 1.1rem;
+  box-sizing: border-box;
+}
+
+.card-divider {
+  background-color: #666;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.menu-card:hover {
+  background-color: #333;
+  transition: background 0.3s;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.card-left, .card-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.card-left {
+  flex: 0 0 50%;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: center;
+  padding: 5px;
+}
+
+.card-left img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  margin-bottom: 5px;
+}
+
+.card-left h5 {
+  white-space: nowrap;
+  overflow: visible;       
+  text-overflow: clip;     
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  width: 100%;
+}
+
+.card-right {
+  background: transparent;
+  color: white;
+  flex: 0 0 50%;
+  padding: 5px;
+  max-width: 100%;
+}
+
+.card-right .desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
+
+.card-right .meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  margin-top: auto;
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.card-right .secondary {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.badge.bg-secondary {
+  background-color: transparent !important;
+  color: #999;
+  border: 1.5px solid #999;
+  display: flex;
+  align-items: center;
+  height: 90%;
+  padding: 0 0.5rem;
+}
+
+.card-right .footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  background: none;
+  gap: 10px;
+}
+
+.card-right .footer input {
+  flex-shrink: 0;
+  margin-right: 2px;
+  width: 100%;
+  height: 25px;
+  padding: 0.25rem;
+  border: 1px solid #222;
+  background-color: #222;
+  color: white;
+  border-radius: 5px;
+  appearance: textfield;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.card-right .footer input:focus {
+  outline: none;
+}
+
+.menu-card:hover .card-right .footer input {
+  background-color: white;
+  color: black;
+  transition: background 0.3s, color 0.3s;
+}
+
+.card-right .footer input[type="number"] {
+  flex: 1;
+  height: 25px;
+  padding: 0.25rem;
+  border: 1px solid #222;
+  background-color: #222;
+  color: white;
+  border-radius: 5px;
+  appearance: textfield;
+  min-width: 0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.card-right .footer .btn {
+  flex-shrink: 0;
+  margin-left: auto;
+  background-color: yellow;
+  color: black;
+  width: 3rem;
+  height: 25px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  font-weight: bold;
+}
+
+.card-right .footer .btn:hover {
+  background-color: transparent;
+  border: 2px solid yellow;
+  transition: background 0.3s;
+  color: white;
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .menu-card {
+    flex-direction: row;
+    width: 400px;
+    height: 200px;
+    align-items: stretch;
+  }
+
+  .card-left,
+  .card-right {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .card-left {
+    padding-right: 10px;
+  }
+
+  .card-right {
+    padding-left: 10px;
+  }
+
+  .card-divider {
+    width: 1px;
+    height: auto;
+    margin: 0 5px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .menu-card {
+    flex-direction: column;
+    width: 200px;
+    height: 350px;
+    gap: 0;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .card-left,
+  .card-right {
+    width: 100%;
+    flex: none;
+    overflow: hidden;
+  }
+
+  .card-left {
+    height: calc(50% - 0.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 10px;
+    padding-right: 0;
+  }
+
+  .card-left img {
+    max-height: 70%;
+    object-fit: contain;
+    margin-bottom: auto;
+  }
+
+  .card-right {
+    height: calc(50% - 0.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 10px;
+    padding-left: 0;
+  }
+
+  .card-divider {
+    width: 90%;
+    height: 1px;
+    margin: 0.25rem auto;
+  }
+
+  .card-right .desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+  }
+}

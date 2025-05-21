@@ -1,0 +1,421 @@
+/* Intro Section */
+.intro {
+height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.restaurant-name {
+font-size: 2rem;
+opacity: 0;
+transition: opacity 1s ease-in-out;
+}
+
+/* About Section */
+.about-section {
+height: 200vh;
+position: relative;
+}
+
+.vertical-text {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 15px; 
+text-align: center;
+}
+
+.vertical-text .line {
+writing-mode: vertical-rl;
+opacity: 0;
+transform: translateY(20vh);
+transition: all 0.5s ease;
+}
+
+.word-zh {
+font-size: 3rem;
+letter-spacing: 20px;
+}
+
+.word-en, .word-tagline {
+font-size: 0.7rem;
+letter-spacing: 10px;
+}
+
+.horizontal-text {
+position: fixed;
+top: 60%;
+left: 50%;
+transform: translate(-50%, -50%);
+text-align: center;
+opacity: 0;
+font-size: 1rem;
+white-space: nowrap;
+transition: all 0.5s ease;
+letter-spacing: 5px;
+}
+
+.fresh-section {
+height: 200vh;
+position: relative;
+}
+
+.fresh-section .vertical-text {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 15px;
+text-align: center;
+z-index: 1;
+}
+
+.fresh-section .horizontal-text {
+position: fixed;
+top: 65%;
+left: 50%;
+transform: translate(-50%, -50%);
+opacity: 0;
+text-align: center;
+font-size: 1rem;
+letter-spacing: 10px;
+transition: all 0.5s ease;
+white-space: nowrap;
+font-family: 'Noto Serif TC', serif;
+z-index: 1;
+}
+
+.fresh-section .horizontal-text div {
+margin-bottom: 10px;
+}
+
+.fresh-image{
+position: fixed;
+top: 40%;
+left: 30%;
+transform: translate(-50%, -50%) translateX(20vw);
+opacity: 0;
+width: 250px;
+height: auto;
+transition: all 0.5s ease;
+z-index: 0;
+pointer-events: none;
+}
+
+.selectivity-section {
+height: auto;
+position: relative;
+padding-bottom: 300px;
+}
+
+.selectivity-section .vertical-text {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 15px;
+text-align: center;
+z-index: 1;
+}
+
+.selectivity-section .horizontal-text {
+position: fixed;
+top: 60%;
+left: 50%;
+transform: translate(-50%, -50%);
+opacity: 0;
+text-align: center;
+font-size: 1rem;
+letter-spacing: 10px;
+transition: all 0.5s ease;
+white-space: nowrap;
+font-family: 'Noto Serif TC', serif;
+z-index: 1;
+}
+
+.selectivity-section .horizontal-text div {
+margin-bottom: 10px;
+}
+
+.selectivity-image {
+position: fixed;
+top: 70%;
+left: 70%;
+transform: translate(-50%, -50%) translateX(20vw);
+opacity: 0;
+width: 270px;
+height: auto;
+transition: all 0.5s ease;
+z-index: 0;
+pointer-events: none;
+}
+
+.stores-section {
+background-color: #222;
+color: #fff;
+position: relative;
+overflow: hidden;
+margin-left: calc(-50vw + 50%);
+margin-right: calc(-50vw + 50%);
+}
+
+/* 垂直文字：共用樣式 */
+.vertical-text.desktop,
+.vertical-text.mobile {
+display: flex;
+gap: 24px;
+flex-direction: row;
+}
+
+.vertical-text.desktop .line,
+.vertical-text.mobile .line {
+opacity: 1 !important;
+writing-mode: vertical-rl;
+}
+
+/* 手機版垂直文字 */
+.vertical-text.mobile {
+position: relative;
+z-index: 100;
+justify-content: center;
+margin: -10% 0 15%;
+}
+
+/* stores 列表區 */
+.stores-list {
+display: flex;
+flex-direction: column;
+margin-left: 0;
+gap: 50px;
+width: 100%;
+}
+
+/* 單個 store */
+.store {
+flex: 1 1 100%;
+min-width: 280px;
+padding-top: 0px;
+border-top: 1px solid #444;
+}
+
+.store-name {
+font-weight: bold;
+font-size: 1rem;
+margin-bottom: 15px;
+margin-left:10%;
+padding-top: 10px;
+}
+
+.store-address,
+.store-hours,
+.store-phone {
+font-size: 0.7rem;
+line-height: 1.5;
+margin-left:10%;
+margin-top: 7px;
+}
+
+/* 響應式：手機版處理 */
+@media (max-width: 768px) {
+.vertical-text.desktop {
+    display: none;
+}
+
+.vertical-text.mobile {
+    display: flex;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.stores-list {
+    flex-direction: column;
+    margin-left: 0;
+    gap: 20px;
+    width: 100%;
+}
+
+.vertical-divider {
+    display: none;
+}
+}
+
+/* 響應式：電腦版處理 */
+@media (min-width: 769px) {
+.stores-section {
+    display: flex;
+    flex-direction: row;
+    padding: 5px 5%;
+    gap: 40px;
+    position: relative;
+}
+
+.vertical-text.desktop {
+    display: flex;
+    width: 15%;
+    justify-content: center;
+    left: 5%;
+    position: relative;
+}
+
+.vertical-text.mobile {
+    display: none;
+}
+
+.vertical-divider {
+    display: block;
+    position: relative;
+    height: auto;
+    width: 1px;
+    background-color: #444;
+    margin: 0 0;
+}
+
+.stores-list {
+    width: 85%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px 30px;
+    padding: 20px 0;
+}
+
+.store {
+    min-width: 280px;
+    border-top: 1px solid #444;
+}
+
+.stores-list .store:nth-child(1),
+.stores-list .store:nth-child(2) {
+    border-top: none;
+}
+}
+
+/* 手機版區域選單 */
+#regionFilter {
+color: white;
+background-color: transparent;
+border: 1px solid white;
+background-position: right 1rem center;
+background-size: 1rem;
+padding-right: 2.5rem;
+appearance: none;
+}
+
+.custom-select {
+color: white;
+border: 1px solid white;
+padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+width: 100%;
+appearance: none;
+-webkit-appearance: none;
+-moz-appearance: none;
+font-size: 1rem;
+}
+
+#regionFilter option {
+background-color: #222; 
+color: white;
+}
+
+.custom-dropdown {
+border: 1px solid white;
+background-color: #222;
+color: white;
+cursor: pointer;
+position: relative;
+user-select: none;
+text-align: left;
+padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+font-size: 1rem;
+}
+
+.custom-dropdown .arrow {
+position: absolute;
+right: 0.75rem;
+top: 50%;
+transform: translateY(-50%);
+font-size: 0.8rem;
+color: white;
+}
+
+.custom-dropdown .selected {
+display: flex;
+align-items: center;
+justify-content: space-between;
+z-index: 21;
+}
+
+.custom-dropdown .options {
+border-top: none;
+border: 1px solid white;
+position: absolute;
+width: 100%;
+top: 100%;
+left: 0;
+background-color: #222;
+z-index: 100;
+display: none;
+box-shadow: 0 4px 6px rgba(0,0,0,0.6);
+z-index: 1;
+}
+
+.custom-dropdown .option {
+padding: 0.5rem 0.75rem;
+border-bottom: 1px solid #444;
+text-align: left;
+}
+
+.custom-dropdown .option:last-child {
+border-bottom: none;
+}
+
+.custom-dropdown .option:hover {
+outline: 2px solid yellow;
+transition: background 0.3s;
+}
+
+/* 訂位按鈕 */
+.reserve-btn-section {
+background-color: #222;
+position: relative;
+overflow: hidden;
+margin-left: calc(-50vw + 50%);
+margin-right: calc(-50vw + 50%);
+z-index: 100;
+}
+
+.reserve-btn-wrapper {
+text-align: center;
+width: 100%;
+display: block;
+margin-bottom: 60px; 
+margin-top: 60px; 
+z-index: 120;
+}
+
+.reserve-btn {
+padding: 8px 32px;
+background-color: yellow;
+border: 2px solid yellow;
+border-radius: 9999px;
+color: black;
+font-size: 1rem;
+text-decoration: none;
+display: inline-block;
+}
+
+.reserve-btn:hover {
+background: none; 
+transition: background 0.3s;
+color: white;
+}
