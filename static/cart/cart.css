@@ -1,0 +1,248 @@
+.my-cart-heading {
+  font-size: 2.5rem;
+  margin-top: 120px; 
+  text-align: center;
+}
+
+.custom-cart-card,
+.card {
+  background-color: black !important;
+  color: white !important;
+  border: 1.5px solid white !important; 
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+  margin-top: 100px; 
+}
+
+.second-card {
+  margin-top: 50px !important;
+}
+
+/* Card headers */
+.custom-cart-card .card-header,
+.card .card-header {
+  background-color: black !important;
+  color: white !important;
+  border-bottom: none;
+  text-align: center; 
+  font-size: 1.3rem;
+  padding: 2rem;
+  padding-bottom: 0;
+}
+
+/* divider below title */
+.card .card-header::after {
+  content: "";
+  display: block;
+  width: 90%;
+  height: 1px;
+  background-color: #666;
+  margin: 1rem auto 0; 
+}
+
+/* Table styling */
+.table {
+  background-color: #000000 !important; 
+  color: #ffffff !important;
+}
+
+.table-responsive {
+  background-color: transparent;
+  border: none; /* Ensure no border hides card border */
+}
+
+.table thead th {
+  background-color: transparent;
+  color: white !important;
+  text-align: center; 
+  padding-top: 1rem !important; 
+  padding-bottom: 0.8rem;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #666;
+  background-color: transparent;
+}
+
+.table tbody tr:last-child { /*  Remove divider below last item */
+  border-bottom: none !important;
+}
+
+.table tbody td {
+  background-color: transparent;
+  color: white !important;
+  text-align: center; /*  Center content */
+}
+
+/* Item name and category alignment */
+td h6 {
+  text-align: left;
+}
+
+td small {
+  display: block;
+  text-align: left;
+}
+
+.category-text {
+  color: #999 !important;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+td:first-child {
+  text-align: left;
+}
+
+/* Trash button */
+.btn-danger,
+.update-btn {
+  background-color: black !important;
+  color: white !important;
+  border: 1px solid white !important;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger:hover,
+.update-btn:hover {
+  background-color: yellow !important;
+  color: black !important;
+  border-color: yellow !important;
+  font-weight: bold;
+}
+
+/* Continue Shopping button */
+.btn-outline-primary {
+  background: none ;
+  color: white !important;
+  border: 2px solid transparent !important; 
+  border-color: yellow!important;
+  border-radius: 999px!important;
+  padding: 0.5rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-outline-primary:hover {
+  background-color: yellow !important;
+  color: black !important;
+  border: 2px solid yellow !important;
+  font-weight: bold;
+}
+
+.quantity-update-container {
+  display: flex;
+  flex-direction: column; /* 手機版：上下排列 */
+  gap: 0.5rem;
+}
+
+.quantity-input {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 0.25rem;
+  width: 50px!important;
+  text-align: center !important;
+  padding: 0.25rem;
+  font-size: 0.875rem;
+  appearance: textfield; 
+}
+
+/* Enable native arrows */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: auto; 
+}
+
+.quantity-input::-moz-appearance {
+  -moz-appearance: number-input; /* Enable arrows in Firefox */
+}
+
+.form-control {
+  background-color: #333 !important;
+  color: white !important;
+  border: 1.3px solid white !important;
+  box-shadow: inset 0 0 15px black; /* 向內黑色陰影 */
+}
+
+.quantity-input:hover{
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+  outline: none !important;
+  box-shadow: none;
+}
+
+.quantity-input:focus {
+  box-shadow: 0 0 5px white !important; /* 向外白色陰影 */
+  outline: none !important; 
+}
+
+/* Order Summary divider */
+.card-body hr {
+  border: none;
+  border-top: 1px solid #666 !important;
+  width: 90%;
+  margin: 1rem auto;
+}
+
+/* Desktop  */
+/* 電腦版：Quantity左右排列 */
+@media (min-width: 992px) {
+  .quantity-update-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .quantity-input {
+    margin-right: 0.2rem;
+  }
+
+  .update-btn {
+    margin-left: 0;
+  }
+
+  .second-card {
+    margin-top: 100px !important;
+  }
+}
+
+/* Image styling */
+.item-image {
+  width: 60px !important;
+  height: 60px !important;
+  min-width: 60px !important;
+  min-height: 60px !important;
+  max-width: 60px !important;
+  max-height: 60px !important;
+  border-radius: 0.25rem;
+  object-fit: cover;
+  object-position: center;
+  flex-shrink: 0; /* 防止縮小 */
+  display: block;
+}
+
+/* Proceed to Checkout button */
+.btn-checkout {
+background-color: yellow !important;
+color: black !important;
+font-weight: bold;
+border: 2px solid yellow !important;
+transition: all 0.3s ease;
+margin-top: 20px;
+}
+
+.btn-checkout:hover {
+background-color: transparent !important;
+color: white !important;
+border: 2px solid yellow !important;
+}

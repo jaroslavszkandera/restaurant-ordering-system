@@ -1,0 +1,237 @@
+{
+  "categories": [
+    {
+      "name": "Noodles",
+      "items": [
+        {
+          "name": "Tomato Beef Soup Noodles",
+          "price": 120,
+          "description": "Tomato-based broth with beef flavor, healthy and refreshing.",
+          "image": "tomato_beef_soup_noodles.jpg"
+        },
+        {
+          "name": "Egg Drop Noodles with Tomato",
+          "price": 100,
+          "description": "Fresh egg drop with tomato soup, smooth and satisfying texture.",
+          "image": "egg_drop_noodles_with_tomato.jpg"
+        },
+        {
+          "name": "Wonton Noodles with Tomato",
+          "price": 110,
+          "description": "Handmade wontons served in a sweet and tangy tomato broth.",
+          "image": "wonton_noodles_with_tomato.jpg"
+        },
+        {
+          "name": "Pork Ribs Noodles with Tomato",
+          "price": 130,
+          "description": "Tender pork ribs paired with tomato soup, rich in flavor.",
+          "image": "pork_ribs_noodles_with_tomato.jpg"
+        },
+        {
+          "name": "Black Vinegar Dried Noodles",
+          "price": 90,
+          "description": "Dried noodles mixed with aromatic black vinegar, light and appetizing.",
+          "image": "black_vinegar_dried_noodles.jpg"
+        },
+        {
+          "name": "Tomato and Pork Ribs Soup Noodles",
+          "price": 125,
+          "description": "Meat with a rich soup base and pork rib flavor.",
+          "image": "tomato_and_pork_ribs_soup_noodles.jpg"
+        },
+        {
+          "name": "Meatball Noodles with Tomato",
+          "price": 115,
+          "description": "Handmade meatballs in a tomato-based noodle soup.",
+          "image": "meatball_noodles_with_tomato.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Rice",
+      "items": [
+        {
+          "name": "Egg Drop Rice in Soup with Tomato",
+          "price": 100,
+          "description": "Smooth egg drop and tomato soup served with rice, comforting and warm.",
+          "image": "egg_drop_rice_in_soup_with_tomato.jpg"
+        },
+        {
+          "name": "Beef Rice in Soup with Tomato",
+          "price": 120,
+          "description": "Tender beef combined with tomato soup and rice.",
+          "image": "beef_rice_in_soup_with_tomato.jpg"
+        },
+        {
+          "name": "Tomato and Pork Ribs Rice in Soup",
+          "price": 125,
+          "description": "Flavorful broth with tender pork ribs and rice.",
+          "image": "tomato_and_pork_ribs_rice_in_soup.jpg"
+        },
+        {
+          "name": "Meatball Rice in Soup with Tomato",
+          "price": 110,
+          "description": "Handmade meatballs blended into tomato soup and rice.",
+          "image": "meatball_rice_in_soup_with_tomato.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Dumplings",
+      "items": [
+        {
+          "name": "Handmade Cabbage Dumpling",
+          "price": 80,
+          "description": "Fresh cabbage filling, handmade with a firm and satisfying bite.",
+          "image": "handmade_cabbage_dumpling.jpg"
+        },
+        {
+          "name": "Handmade Chive Dumpling",
+          "price": 85,
+          "description": "Rich chive aroma and delicious flavor in every bite.",
+          "image": "handmade_chive_dumpling.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Soup",
+      "items": [
+        {
+          "name": "Egg Drop Soup with Tomato",
+          "price": 70,
+          "description": "Smooth egg drop blended with sweet and tangy tomato soup.",
+          "image": "egg_drop_soup_with_tomato.jpg"
+        },
+        {
+          "name": "Beef Soup with Tomato",
+          "price": 90,
+          "description": "Savory beef in a rich tomato-flavored broth.",
+          "image": "beef_soup_with_tomato.jpg"
+        },
+        {
+          "name": "Wonton Soup with Tomato",
+          "price": 85,
+          "description": "Handmade wontons paired with tangy tomato soup.",
+          "image": "wonton_soup_with_tomato.jpg"
+        },
+        {
+          "name": "Pork Ribs Soup with Tomato",
+          "price": 95,
+          "description": "Tender pork ribs stewed in a sweet tomato soup.",
+          "image": "pork_ribs_soup_with_tomato.jpg"
+        },
+        {
+          "name": "Meatball Soup with Tomato",
+          "price": 85,
+          "description": "Handmade meatballs perfectly matched with tomato soup.",
+          "image": "meatball_soup_with_tomato.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Side Dishes",
+      "items": [
+        {
+          "name": "Braised Snack Platter",
+          "price": 150,
+          "description": "A variety of braised items with rich flavors.",
+          "image": "braised_snack_platter.jpg"
+        },
+        {
+          "name": "Blanched Vegetables",
+          "price": 70,
+          "description": "Fresh vegetables lightly boiled, healthy and refreshing.",
+          "image": "blanched_vegetables.jpg"
+        },
+        {
+          "name": "Braised Egg",
+          "price": 20,
+          "description": "Flavorful marinated egg with rich aroma.",
+          "image": "braised_egg.jpg"
+        },
+        {
+          "name": "Tofu Curd",
+          "price": 30,
+          "description": "Braised tofu curd with a chewy texture.",
+          "image": "tofu_curd.jpg"
+        },
+        {
+          "name": "Kelp",
+          "price": 30,
+          "description": "Nutritious and crispy seaweed.",
+          "image": "kelp.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "items": [
+        {
+          "name": "Bubble Milk Tea",
+          "price": 60,
+          "description": "Classic Taiwanese milk tea with chewy tapioca pearls.",
+          "image": "bubble_milk_tea.jpg"
+        },
+        {
+          "name": "Green Tea",
+          "price": 40,
+          "description": "Refreshing and naturally aromatic green tea.",
+          "image": "green_tea.jpg"
+        },
+        {
+          "name": "Black Tea",
+          "price": 40,
+          "description": "Bold and rich black tea, perfect with desserts.",
+          "image": "black_tea.jpg"
+        },
+        {
+          "name": "Winter Melon Tea",
+          "price": 50,
+          "description": "Lightly sweet and thirst-quenching, perfect for summer.",
+          "image": "winter_melon_tea.jpg"
+        },
+        {
+          "name": "Lemon Juice",
+          "price": 55,
+          "description": "Freshly squeezed lemon juice, perfectly balanced sweetness and tartness.",
+          "image": "lemon_juice.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Desserts",
+      "items": [
+        {
+	  "name": "Chocolate Strawberry Lava Cake",
+	  "price": 65,
+	  "description": "Warm chocolate cake with a gooey molten center, topped with fresh strawberries and served with vanilla ice cream.",
+	  "image": "chocolate_strawberry_lava_cake.jpg"
+},
+        {
+          "name": "Strawberry Cheesecake",
+          "price": 60,
+          "description": "Creamy cheesecake topped with fresh strawberries and a sweet strawberry glaze.",
+          "image": "strawberry_cheesecake.jpg"
+        },
+        {
+          "name": "Tiramisu",
+          "price": 70,
+          "description": "Classic Italian dessert with layers of mascarpone, espresso-soaked ladyfingers, and cocoa powder.",
+          "image": "tiramisu.jpg"
+        },
+        {
+          "name": "Matcha Mochi Ice Cream",
+          "price": 60,
+          "description": "Soft mochi filled with creamy matcha ice cream, perfect for green tea lovers.",
+          "image": "matcha_mochi_ice_cream.jpg"
+        },
+        {
+          "name": "Tomato",
+          "price": 20,
+          "description": "Smooth and refreshing big Tomato.",
+          "image": "tomato.jpg"
+        }	
+      ]
+    }
+  ]
+}

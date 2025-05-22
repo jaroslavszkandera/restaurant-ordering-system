@@ -24,7 +24,7 @@ class MenuItem(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="items"
     )
-    image = models.ImageField(upload_to="menu_images/", blank=True, null=True)
+    image = models.ImageField(upload_to="menu_items/", blank=True, null=True)
     available = models.BooleanField(default=True)
 
     def __str__(self):

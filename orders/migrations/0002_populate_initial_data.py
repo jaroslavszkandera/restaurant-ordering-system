@@ -2,65 +2,99 @@
 
 from django.db import migrations
 from decimal import Decimal
+from django.core.files.images import ImageFile
+import os
+import json
+import re
+
+
+def slugify_filename(name):
+    """
+    Converts the name into a valid filename format (lowercase, with non-alphanumeric characters replaced by underscores).
+    """
+    return re.sub(r'\W+', '_', name.strip().lower()) + '.jpg'
 
 
 def populate_data(apps, schema_editor):
     Category = apps.get_model("orders", "Category")
     MenuItem = apps.get_model("orders", "MenuItem")
 
-    main_courses, _ = Category.objects.get_or_create(
-        name="Main Courses",
-        defaults={"description": "Hearty and satisfying main dishes."},
-    )
-    soups, _ = Category.objects.get_or_create(
-        name="Soups", defaults={"description": "Warm and comforting soups."}
-    )
-    desserts, _ = Category.objects.get_or_create(
-        name="Desserts", defaults={"description": "Sweet treats to end your meal."}
-    )
-    drinks, _ = Category.objects.get_or_create(
-        name="Drinks", defaults={"description": "Refreshing beverages."}
-    )
+    # Create category descriptions
+    category_descriptions = {
+        "Noodles": "Savory noodle dishes from various cuisines.",
+        "Rice": "Fluffy rice dishes, perfect for any meal.",
+        "Dumplings": "Stuffed delights, steamed or fried.",
+        "Soup": "Warm and hearty soups.",
+        "Side Dishes": "Small plates to complement your meal.",
+        "Drinks": "Refreshing beverages.",
+        "Desserts": "Sweet treats to end your meal.",
+    }
 
-    MenuItem.objects.get_or_create(
-        name="Grilled Chicken Breast",
-        category=main_courses,
-        defaults={
-            "description": "Tender grilled chicken served with seasonal vegetables.",
-            "price": Decimal("15.99"),
-            "available": True,
-        },
-    )
-    MenuItem.objects.get_or_create(
-        name="Tomato Soup",
-        category=soups,
-        defaults={
-            "description": "Classic creamy tomato soup.",
-            "price": Decimal("6.50"),
-            "available": True,
-        },
-    )
-    MenuItem.objects.get_or_create(
-        name="Chocolate Lava Cake",
-        category=desserts,
-        defaults={
-            "description": "Warm chocolate cake with a gooey center.",
-            "price": Decimal("8.00"),
-            "available": True,
-        },
-    )
-    MenuItem.objects.get_or_create(
-        name="Iced Tea",
-        category=drinks,
-        defaults={
-            "description": "Freshly brewed iced tea.",
-            "price": Decimal("3.00"),
-            "available": True,
-        },
-    )
+    # Create or get categories
+    category_objs = {}
+    for name, desc in category_descriptions.items():
+        category, _ = Category.objects.get_or_create(name=name, defaults={"description": desc})
+        category_objs[name] = category
+
+    # Path to the data JSON file
+    base_dir = os.path.dirname(__file__)  # /project/orders/migrations
+    data_file_path = os.path.join(base_dir, "..", "..", "media", "menu_items.json")
+
+    # Read the JSON data
+    try:
+        with open(data_file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        print(f"Error: {data_file_path} not found.")
+        return
+    except json.JSONDecodeError:
+        print(f"Error: Failed to decode JSON from {data_file_path}.")
+        return
+
+    # Base path for images in media folder
+    media_base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "media", "menu_items")
+
+    # Loop through categories from JSON data and add menu items
+    for category_data in data['categories']:
+        # Get or create the category
+        category, _ = Category.objects.get_or_create(
+            name=category_data['name'],
+            defaults={"description": category_data.get('description', f"{category_data['name']} description")}
+        )
+
+        # Loop through menu items for each category
+        for item in category_data['items']:
+            # Construct the image file path based on the 'image' field in JSON
+            image_filename = slugify_filename(item['name'])  # Standardize image filename
+            image_path = os.path.join(media_base_path, image_filename)
+
+            try:
+                # Open the image file
+                with open(image_path, "rb") as image_file:
+                    image_file_obj = ImageFile(image_file, name=image_filename)
+
+                    # Create or update the menu item
+                    MenuItem.objects.get_or_create(
+                        name=item["name"],
+                        category=category,
+                        defaults={
+                            "description": item["description"],
+                            "price": Decimal(item["price"]),
+                            "available": True,
+                            "image": image_file_obj
+                        }
+                    )
+                print(f"✅ Created MenuItem: {item['name']} with image {image_filename}")
+
+            except FileNotFoundError:
+                print(f"⚠️ Image file {image_filename} not found at {image_path}. Skipping item.")
 
 
 def remove_data(apps, schema_editor):
+    """
+    Revert migration operations. This function can be used to remove test data if needed.
+    For now, it's empty.
+    """
     pass
 
 

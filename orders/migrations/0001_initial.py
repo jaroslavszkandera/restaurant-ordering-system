@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
                 ("price", models.DecimalField(decimal_places=2, max_digits=6)),
                 (
                     "image",
-                    models.ImageField(blank=True, null=True, upload_to="menu_images/"),
+                    models.ImageField(blank=True, null=True, upload_to="menu_items/"),
                 ),
                 ("available", models.BooleanField(default=True)),
                 (

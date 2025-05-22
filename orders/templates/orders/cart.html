@@ -1,16 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Your Cart - Restaurant Name{% endblock %}
+{% block title %}My Cart - Restaurant Name{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/cart/cart.css">
+{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Your Cart</h1>
+<h2 class="my-cart-heading">My Cart</h2>
 
 {% if cart_items %}
 <div class="row">
   <div class="col-lg-8">
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Cart Items ({{ cart_items|length }})</h5>
+        <h5 class="mb-0" id="cart-item-count">Cart Items ({{ cart_items|length }})</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -21,7 +25,7 @@
                 <th class="text-center">Price</th>
                 <th class="text-center">Quantity</th>
                 <th class="text-end">Subtotal</th>
-                <th></th>
+                <th class="text-end"></th>
               </tr>
             </thead>
             <tbody>
@@ -30,17 +34,16 @@
                 <td>
                   <div class="d-flex align-items-center">
                     {% if item.menu_item.image %}
-                    <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" class="me-3"
-                      style="width: 60px; height: 60px; object-fit: cover;">
+                    <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" class="me-3 item-image"
+                      style="object-fit: cover;">
                     {% else %}
-                    <div class="me-3 bg-light d-flex align-items-center justify-content-center"
-                      style="width: 60px; height: 60px;">
+                    <div class="me-3 bg-light d-flex align-items-center justify-content-center item-image">
                       <i class="fas fa-utensils text-secondary"></i>
                     </div>
                     {% endif %}
                     <div>
                       <h6 class="mb-0">{{ item.menu_item.name }}</h6>
-                      <small class="text-muted">{{ item.menu_item.category.name }}</small>
+                      <small class="category-text">{{ item.menu_item.category.name }}</small>
                     </div>
                   </div>
                 </td>
@@ -48,15 +51,12 @@
                 <td class="text-center">
                   <form method="post" action="{% url 'view_cart' %}" class="update-cart-form">
                     {% csrf_token %}
-                    {# REMOVE THIS LINE: {{ update_forms|get_item:item.id.cart_item_id }} #}
                     <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                    <div class="quantity-control">
-                      <button type="button" class="btn btn-sm btn-outline-secondary decrement-qty">-</button>
+                    <div class="quantity-update-container">
                       <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="10"
                         class="form-control form-control-sm quantity-input" data-item-id="{{ item.id }}">
-                      <button type="button" class="btn btn-sm btn-outline-secondary increment-qty">+</button>
+                      <button type="submit" class="btn btn-sm update-btn">Update</button>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-success d-block mt-1 mx-auto update-btn">Update</button>
                   </form>
                 </td>
                 <td class="text-end">${{ item.subtotal }}</td>
@@ -64,7 +64,7 @@
                   <form method="post" action="{% url 'view_cart' %}" class="d-inline">
                     {% csrf_token %}
                     <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                    <input type="hidden" name="quantity" value="0"> {# This form handles removal #}
+                    <input type="hidden" name="quantity" value="0">
                     <button type="submit" class="btn btn-sm btn-danger">
                       <i class="fas fa-trash"></i>
                     </button>
@@ -86,7 +86,7 @@
   </div>
 
   <div class="col-lg-4">
-    <div class="card">
+    <div class="card second-card">
       <div class="card-header bg-primary text-white">
         <h5 class="mb-0">Order Summary</h5>
       </div>
@@ -100,7 +100,7 @@
           <span class="fw-bold">Total:</span>
           <span class="fw-bold">${{ cart.total_price }}</span>
         </div>
-        <a href="{% url 'checkout' %}" class="btn btn-success w-100">
+        <a href="{% url 'checkout' %}" class="btn btn-checkout w-100">
           <i class="fas fa-check-circle me-2"></i>Proceed to Checkout
         </a>
       </div>
@@ -122,27 +122,8 @@
 {% block extra_js %}
 <script>
   $(document).ready(function () {
-    // Increment/decrement quantity
-    $('.increment-qty').click(function () {
-      let input = $(this).siblings('.quantity-input');
-      let value = parseInt(input.val());
-      if (value < 10) {
-        input.val(value + 1);
-      }
-    });
-
-    $('.decrement-qty').click(function () {
-      let input = $(this).siblings('.quantity-input');
-      let value = parseInt(input.val());
-      if (value > 1) {
-        input.val(value - 1);
-      }
-    });
-
-    // Auto-submit the form when clicking the trash icon
-    $('.remove-item').click(function () {
-      $(this).closest('form').submit();
-    });
+    // No increment/decrement buttons needed, using native input arrows
   });
 </script>
 {% endblock %}
+

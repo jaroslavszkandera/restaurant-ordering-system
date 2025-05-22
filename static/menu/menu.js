@@ -135,7 +135,29 @@ $(document).ready(function () {
         });
       }
     });
+
   });
+
+  // Floating category menu toggle
+  $('#floating-menu-btn').on('click', function () {
+    $('#floating-category-menu').toggleClass('show');
+  });
+
+  // Close floating menu when a category is clicked
+  $('#floating-category-menu').on('click', 'a', function () {
+    $('#floating-category-menu').removeClass('show');
+  });
+});
+
+// 點擊選單外區域時關閉浮動選單
+$(document).on('click', function (event) {
+  const $menu = $('#floating-category-menu');
+  const $toggleBtn = $('#floating-menu-btn');
+  // 如果點擊的不是選單本身、也不是 toggle 按鈕，則關閉
+  if (!$menu.is(event.target) && $menu.has(event.target).length === 0 &&
+      !$toggleBtn.is(event.target) && $toggleBtn.has(event.target).length === 0) {
+    $menu.removeClass('show');
+  }
 });
 
 // Scroll functionality
@@ -154,14 +176,18 @@ window.scrollCategories = function(direction) {
   let scrollIndex = window.scrollIndex || 0;
   const btnWidths = Array.from(btns).map(btn => btn.offsetWidth);
   const avgBtnWidth = btnWidths.reduce((sum, w) => sum + w, 0) / btnWidths.length + 8;
+
   const visibleCount = Math.floor(wrapper.offsetWidth / avgBtnWidth);
   const maxScrollIndex = Math.max(0, btns.length - visibleCount);
+
+  const isMobile = window.innerWidth <= 768; // 判斷裝置大小
+  const scrollStep = isMobile ? 1 : 3;       // 手機滑1個、桌機滑2個
 
   if ((direction < 0 && scrollIndex <= 0) || (direction > 0 && scrollIndex >= maxScrollIndex)) {
     return;
   }
 
-  scrollIndex = Math.max(0, Math.min(scrollIndex + direction, maxScrollIndex));
+  scrollIndex = Math.max(0, Math.min(scrollIndex + direction * scrollStep, maxScrollIndex));
   const scrollOffset = scrollIndex * avgBtnWidth;
 
   wrapper.scrollTo({
@@ -178,136 +204,57 @@ window.scrollCategories = function(direction) {
     rightBtn.classList.toggle('disabled', scrollIndex >= maxScrollIndex);
   }
 
-  console.log({
-    scrollIndex,
-    scrollOffset,
-    avgBtnWidth,
-    visibleCount,
-    maxScrollIndex,
-    wrapperWidth: wrapper.offsetWidth,
-    listWidth: list.scrollWidth
-  });
+  // optional debug:
+  // console.log({ scrollIndex, scrollOffset, avgBtnWidth, visibleCount, maxScrollIndex });
 };
 
-// Fit text to container width (single line, shrink if too long)
-function fitTextToWidth(el, maxFontSize = 1.2, minFontSize = 0.6) {
-  if (!el || !el.parentElement) {
-    console.warn('Invalid element or parent in fitTextToWidth:', el);
-    return maxFontSize;
+// Fit text to container width (strictly two lines, shrink if needed)
+function fitTextToWidth(el) {
+  const maxHeight = el.clientHeight; // h5 已設定 height
+  let fontSize = parseFloat(getComputedStyle(el).fontSize);
+  const minFontSize = 12;
+  const lineHeight = 1.2;
+
+  el.style.whiteSpace = "normal";
+  el.style.display = "flex";
+  el.style.alignItems = "center";
+  el.style.justifyContent = "center";
+  el.style.textAlign = "center";
+
+  while (el.scrollHeight > maxHeight && fontSize > minFontSize) {
+    fontSize -= 1;
+    el.style.fontSize = `${fontSize}px`;
+    el.style.lineHeight = `${lineHeight}`;
   }
 
-  const parent = el.parentElement;
-  const style = window.getComputedStyle(parent);
-  const paddingLeft = parseFloat(style.paddingLeft) || 0;
-  const paddingRight = parseFloat(style.paddingRight) || 0;
-  const parentWidth = parent.clientWidth - paddingLeft - paddingRight;
-
-  if (parentWidth <= 0) {
-    console.warn('Parent width is invalid:', parentWidth, parent);
-    return maxFontSize;
-  }
-
-  // Save original styles
-  const originalFontSize = el.style.fontSize;
-  const originalWhiteSpace = el.style.whiteSpace;
-
-  // Temporarily disable overflow/ellipsis during measurement
-  const originalOverflow = el.style.overflow;
-  const originalTextOverflow = el.style.textOverflow;
-
-  el.style.whiteSpace = 'nowrap';
-  el.style.overflow = 'visible';
-  el.style.textOverflow = 'clip';
-
-  let fontSize = maxFontSize;
-  let low = minFontSize;
-  let high = maxFontSize;
-  let iterations = 0;
-  const maxIterations = 50;
-
-  while (low <= high && iterations < maxIterations) {
-    fontSize = (low + high) / 2;
-    el.style.fontSize = `${fontSize}rem`;
-    el.offsetWidth; // force reflow
-
-    const scrollWidth = el.scrollWidth;
-
-    if (scrollWidth <= parentWidth) {
-      low = fontSize + 0.005;
-    } else {
-      high = fontSize - 0.005;
-    }
-
-    iterations++;
-  }
-
-  // Apply final font size
-  fontSize = Math.max(minFontSize, Math.min(maxFontSize, fontSize));
-  el.style.fontSize = `${fontSize}rem`;
-
-  // Restore overflow styles (but still no ellipsis!)
-  el.style.whiteSpace = originalWhiteSpace || '';
-  el.style.overflow = 'visible';
-  el.style.textOverflow = 'clip';
-
-  return fontSize;
+  return { fontSize };
 }
 
-
-// Adjust card content (font size and image height)
+// Adjust card content (font size, lines, and image dimensions)
 function adjustCardContent() {
   const cards = document.querySelectorAll('.menu-card');
-  if (!cards.length) {
-    console.warn('No menu cards found');
-    return;
-  }
+  if (!cards.length) return;
 
   cards.forEach(card => {
-    const title = card.querySelector('.card-left h5');
-    const img = card.querySelector('.card-left img');
-
-    if (!title) {
-      console.warn('Missing title in card:', card);
-      return;
-    }
-    // Image is optional due to fa-utensils fallback
-    if (!img) {
-      console.warn('No image in card, using icon:', card);
-    }
-
-    const fontSize = fitTextToWidth(title);
-    if (!fontSize || fontSize <= 0) {
-      console.error('Invalid font size returned:', fontSize);
-      return;
-    }
-
-    const maxTextHeight = fontSize * 1.2; // Line-height in rem
-    const cardHeight = card.clientHeight;
-    const gapBetweenImgAndTitle = 5;
-
     const cardLeft = card.querySelector('.card-left');
-    const style = window.getComputedStyle(cardLeft);
-    const paddingTop = parseFloat(style.paddingTop) || 0;
-    const paddingBottom = parseFloat(style.paddingBottom) || 0;
+    const title = cardLeft.querySelector('h5');
+    const img = cardLeft.querySelector('img');
 
-    // Only adjust image if present
-    if (img) {
-      const availableHeight = (cardHeight / 2) - maxTextHeight - gapBetweenImgAndTitle - paddingTop - paddingBottom;
-      const maxImgHeight = Math.max(availableHeight, 0);
-      img.style.maxHeight = `${maxImgHeight}px`;
-      img.style.marginBottom = `${gapBetweenImgAndTitle}px`;
-    }
+    if (!title || !img) return;
 
-    console.log({
-      cardId: card.id || 'unnamed',
-      cardHeight,
-      fontSize,
-      maxTextHeight,
-      paddingTop,
-      paddingBottom,
-      availableHeight: img ? (cardHeight / 2) - maxTextHeight - gapBetweenImgAndTitle - paddingTop - paddingBottom : 'N/A',
-      maxImgHeight: img ? Math.max(availableHeight, 0) : 'N/A'
-    });
+    // Apply font scaling
+    const { fontSize } = fitTextToWidth(title);
+
+    // 計算剩餘空間給圖片
+    const cardLeftHeight = cardLeft.clientHeight;
+    const gap = 5;
+    const lineHeight = 1.2;
+    const titleHeight = fontSize * lineHeight * 2;
+
+    const maxImgHeight = cardLeftHeight - titleHeight - gap;
+    img.style.height = `${maxImgHeight}px`;
+    img.style.objectFit = 'cover';
+    img.style.marginBottom = `${gap}px`;
   });
 }
 
@@ -320,11 +267,15 @@ function debounce(func, wait) {
   };
 }
 
-// Run adjustCardContent on initial load
-window.addEventListener('load', adjustCardContent);
+document.addEventListener("DOMContentLoaded", () => {
+  adjustCardContent();
+});
 
-// Run adjustCardContent on window resize with debounce
-window.addEventListener('resize', debounce(adjustCardContent, 100));
+window.addEventListener("load", () => {
+  adjustCardContent();
+});
 
-// Run adjustCardContent after DOM content is loaded to catch early renders
-document.addEventListener('DOMContentLoaded', adjustCardContent);
+window.addEventListener("resize", () => {
+  adjustCardContent();
+});
+
