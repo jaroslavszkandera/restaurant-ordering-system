@@ -1,25 +1,42 @@
-{% extends 'order/base.html' %}
+{% extends 'base.html' %}
 
-{% block title %}Order Confirmed - Restaurant Name{% endblock %}
+{% block title %}ORDER CONFIRMED - Our restaurant{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/form.css">
+<link rel="stylesheet" href="/static/css/sheet.css">
+<link rel="stylesheet" href="/static/css/confirmation.css">
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5 text-center">
   <div class="py-5">
-    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
-    <h1 class="display-5 fw-bold">Thank You For Your Order!</h1>
-    <p class="lead text-muted">Your order has been placed successfully.</p>
+    <div class="custom-check-icon mb-4">
+      <i class="fas fa-check"></i>
+    </div>
+    <h1 class="display-5 fw-bold" style="color: white;">Thank You For Your Order!</h1>
+    <p class="lead" style="color: white;">Your order has been placed successfully.</p>
     <hr class="my-4">
 
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm">
-          <div class="card-header bg-light">
+        <div class="auth-container">
+          <div class="custom-card-header">
             <h4 class="mb-0">Order #{{ order.id }} Summary</h4>
           </div>
-          <div class="card-body text-start">
+          <div class="card-body text-start" style="color: white;">
             <p><strong>Order ID:</strong> {{ order.id }}</p>
             <p><strong>Date Placed:</strong> {{ order.created_at|date:"F d, Y, P" }}</p>
-            <p><strong>Status:</strong> <span class="badge bg-info text-dark">{{ order.get_status_display }}</span></p>
+            <p>
+              <strong>Status:</strong>
+              <span class="status-badge 
+                {% if order.status == 'completed' %}status-completed
+                {% elif order.status == 'pending' %}status-pending
+                {% elif order.status == 'cancelled' %}status-cancelled
+                {% else %}status-other{% endif %}">
+                {{ order.get_status_display }}
+              </span>
+            </p>
 
             {% if order.customer %}
             <h5 class="mt-4">Customer Details:</h5>
@@ -41,26 +58,27 @@
             <ul class="list-group list-group-flush mb-3">
               {% for item in order.items.all %}
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ item.quantity }} x {{ item.menu_item.name }}</span>
+                <span class="fw-bold">{{ item.quantity }} x {{ item.menu_item.name }}</span>
                 <span>${{ item.price|floatformat:2 }} each</span>
                 <span class="fw-bold">${{ item.subtotal|floatformat:2 }}</span>
               </li>
               {% endfor %}
+              <li class="list-group-item d-flex justify-content-between align-items-center bg-dark">
+                <span class="fw-bold">Total</span>
+                <span class="fw-bold">${{ order.total_price|floatformat:2 }}</span>
+              </li>
             </ul>
-            <div class="d-flex justify-content-end">
-              <h4 class="mb-0">Total: <span class="text-primary">${{ order.total_price|floatformat:2 }}</span></h4>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="mt-5">
-      <a href="{% url 'menu' %}" class="btn btn-primary btn-lg me-2">
+    <div class="mt-5 d-flex justify-content-center align-items-center gap-3 flex-wrap">
+      <a href="{% url 'menu' %}" class="edit-cart-btn" style="text-decoration: none;">
         <i class="fas fa-utensils me-2"></i>Continue Shopping
       </a>
       {% if user.is_authenticated %}
-      <a href="{% url 'order_history' %}" class="btn btn-outline-secondary btn-lg">
+      <a href="{% url 'order_history' %}" class="edit-cart-btn" style="text-decoration: none;">
         <i class="fas fa-history me-2"></i>View Order History
       </a>
       {% endif %}
@@ -68,3 +86,6 @@
   </div>
 </div>
 {% endblock %}
+
+
+

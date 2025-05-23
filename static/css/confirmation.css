@@ -1,0 +1,23 @@
+.custom-card-header {
+    background-color: #000 !important;
+    color: white !important;
+    padding: 1rem;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.custom-check-icon {
+    background-color: yellow;
+    color: black;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    font-size: 2.5rem;
+}
+
+.custom-check-icon i {
+    margin: 0;
+}

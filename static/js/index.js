@@ -79,14 +79,14 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (progress >= start && progress < end) {
           const percent = (progress - start) / (end - start);
           const move = (1 - percent) * 20;
-          el.style.opacity = isImage ? percent * 0.8 : percent;
+          el.style.opacity = isImage ? percent * 0.6 : percent;
           el.style.transform = isHorizontal
             ? `translate(-50%, -50%) translateX(${move}vw)`
             : `translate(-50%, -50%) translateY(${move}vh)`;
         }
         // 完全顯示
         else if (progress >= end && progress < 0.85) {
-          el.style.opacity = isImage ? 0.8 : 1;
+          el.style.opacity = isImage ? 0.6 : 1;
           el.style.transform = `translate(-50%, -50%)`;
         }
         // 淡出中
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const fade = 1 - (progress - 0.85) / 0.1;
           const shouldFade = imageShouldFadeOut || (!includeImage || el !== image);
           if (shouldFade) {
-            el.style.opacity = isImage ? fade * 0.8 : fade;
+            el.style.opacity = isImage ? fade * 0.6 : fade;
           }
           el.style.transform = `translate(-50%, -50%)`;
         }
@@ -127,11 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
         image.style.opacity = 0;
         image.style.transform = `translate(-50%, -50%) translateX(20vw)`;
         } else if (scrollY >= start && scrollY < fadeOutStart) {
-        image.style.opacity = 0.8;
+        image.style.opacity = 0.6;
         image.style.transform = `translate(-50%, -50%)`;
         } else if (scrollY >= fadeOutStart && scrollY < end) {
         const fade = 1 - (scrollY - fadeOutStart) / (end - fadeOutStart);
-        image.style.opacity = fade * 0.8;
+        image.style.opacity = fade * 0.6;
         image.style.transform = `translate(-50%, -50%)`;
         } else {
         image.style.opacity = 0;
@@ -157,7 +157,7 @@ function filterStores(region) {
 
 // 預設手機版顯示北部商店
 if (window.innerWidth <= 768) {
-  filterStores('北部');
+  filterStores('Northern Region');
 }
 
 // 同步 <select> 下拉選單變更事件（主要是表單支援）

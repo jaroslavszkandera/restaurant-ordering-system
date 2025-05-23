@@ -1,156 +1,166 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}HOME - 餐廳名稱{% endblock %}
+{% block title %}HOME - Our restaurant{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/index/index.css">
+<link rel="stylesheet" href="/static/css/index.css">
 {% endblock %}
 
 {% block content %}
 <section class="intro">
-  <h1 class="restaurant-name">餐廳名稱</h1>
+  <h1 class="restaurant-name">Our restaurant</h1>
 </section>
 
 <section class="about-section">
-  <div class="vertical-text">
-    <div class="line word-zh">關於</div>
-    <div class="line word-en">ABOUT</div>
-    <div class="line word-tagline">職人之魂</div>
+<div class="vertical-text">
+    <div class="line label-main">
+      <span>A</span><span>B</span><span>O</span><span>U</span><span>T</span>
+    </div>
+    <div class="line label-sub">Craftsmanship </div>
+    <div class="line label-tag">The Spirit of</div>
   </div>
-  <div class="horizontal-text">職人匠心，專注純粹</div>
+  <div class="horizontal-text">Artisan Dedication, Pure Focus</div>
 </section>
 
 <section class="fresh-section">
   <div class="vertical-text">
-    <div class="line word-zh">新鮮</div>
-    <div class="line word-en">FRESH</div>
-    <div class="line word-tagline">職人堅持</div>
-  </div>
+      <div class="line label-main">
+          <span>F</span><span>R</span><span>E</span><span>S</span><span>H</span>
+      </div>
+      <div class="line label-sub">Commitment</div>
+      <div class="line label-tag">Craftsman's</div>
+    </div>
   <div class="horizontal-text">
-    <div>使用新鮮、全天然、無激素的雞肉與牛肉</div>
-    <div>每日引進新鮮魚類</div>
+    <div>Using fresh, all-natural chicken and beef</div>
+    <div>Fresh fish delivered daily</div>
   </div>
-  <img src="{% static 'index/index_image1.png' %}" class="fresh-image" alt="fresh food" />
+  <img src="{% static 'img/beef_rice_in_soup_with_tomato.png' %}" class="fresh-image" alt="fresh food" />
 </section>
 
 <section class="selectivity-section">
   <div class="vertical-text">
-    <div class="line word-zh">精選</div>
-    <div class="line word-en">SELECTED</div>
-    <div class="line word-tagline">嚴選食材</div>
-  </div>
+      <div class="line label-main">
+        <span>S</span><span>E</span><span>L</span><span>E</span><span>C</span><span>T</span>
+      </div>
+      <div class="line label-sub">ingredients</div>
+      <div class="line label-tag">Carefully selected</div>
+    </div>
   <div class="horizontal-text">
-    <div>確保優質的口味和上乘的風味</div>
+    <div>Ensuring premium taste </div>
+    <div>and superior flavor</div>
   </div>
-  <img src="{% static 'index/index_image2.png' %}" class="selectivity-image" alt="selectivity food" />
+  <img src="{% static 'img/braised_snack_platter.png' %}" class="selectivity-image" alt="selectivity food" />
 </section>
 
 <section class="stores-section">
     <!-- 手機版 -->
     <div class="vertical-text mobile">
-      <div class="line word-zh">據點</div>
-      <div class="line word-en">STORES</div>
-      <div class="line word-tagline">美味門市據點</div>
-    </div>
+        <div class="line label-main">
+          <span>S</span><span>T</span><span>O</span><span>R</span><span>E</span><span>S</span>
+        </div>
+        <div class="line label-sub">Delicious Locations</div>
+      </div>
 
     <div class="text-center my-3 d-md-none">
       <div class="custom-select-wrapper" style="position: relative; width: 60%; margin: 0 auto;">
         <select id="regionFilter" class="custom-select" style="display: none;">
-          <option value="北部" selected>北部</option>
-          <option value="中部">中部</option>
-          <option value="南部">南部</option>
+          <option value="Northern Region" selected>Northern Region</option>
+          <option value="Central Region">Central Region</option>
+          <option value="Southern Region">Southern Region</option>
         </select>
         <div id="customDropdown" class="custom-dropdown"></div>
       </div>
     </div>
-  
+
     <!-- 電腦版 -->
     <div class="vertical-text desktop">
-      <div class="line word-zh">據點</div>
-      <div class="line word-en">STORES</div>
-      <div class="line word-tagline">美味門市據點</div>
-    </div>
+        <div class="line label-main">
+          <span>S</span><span>T</span><span>O</span><span>R</span><span>E</span><span>S</span>
+        </div>
+        <div class="line label-sub">Locations</div>
+        <div class="line label-tag">Delicious</div>
+      </div>
     
     <!-- 垂直分隔線 -->
     <div class="vertical-divider"></div>
     
     <div class="stores-list">
-      <div class="store" data-region="北部">
-        <div class="store-name">新莊中正店</div>
-        <div class="store-address">地址：新北市新莊區中正路119號3樓</div>
+      <div class="store" data-region="Northern Region">
+        <div class="store-name">Xinzhuang Zhongzheng Store</div>
+        <div class="store-address">Address: 3F, No. 119, Zhongzheng Road, Xinzhuang District, New Taipei City</div>
         <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
+          Hours:<br />
+          Weekdays: 11:00 AM – 2:30 PM / 5:00 PM – 10:30 PM<br />
+          Weekends (holidays): 11:00 AM – 10:30 PM
         </div>
-        <div class="store-phone">專線：(02) 1335-4598</div>
+        <div class="store-phone">Phone: (02) 1335-4598</div>
       </div>
   
-      <div class="store" data-region="北部">
-        <div class="store-name">台北信義店</div>
-        <div class="store-address">地址：台北市信義區松高路88號</div>
+      <div class="store" data-region="Northern Region">
+        <div class="store-name">Taipei Xinyi Store</div>
+        <div class="store-address">Address: No. 88, Songgao Road, Xinyi District, Taipei City</div>
         <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
+          Hours:<br />
+          Weekdays: 11:00 AM – 2:30 PM / 5:00 PM – 10:30 PM<br />
+          Weekends (holidays): 11:00 AM – 10:30 PM
         </div>
-        <div class="store-phone">專線：(02) 2789-1234</div>
+        <div class="store-phone">Phone: (02) 2789-1234</div>
       </div>
   
-      <div class="store" data-region="北部">
-        <div class="store-name">板橋文化店</div>
-        <div class="store-address">地址：新北市板橋區文化路一段111號</div>
+      <div class="store" data-region="Northern Region">
+        <div class="store-name">Banqiao Wenhua Store</div>
+        <div class="store-address">Address: No. 111, Section 1, Wenhua Road, Banqiao District, New Taipei City</div>
         <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
+          Hours:<br />
+          Weekdays: 11:00 AM – 2:30 PM / 5:00 PM – 10:30 PM<br />
+          Weekends (holidays): 11:00 AM – 10:30 PM
         </div>
-        <div class="store-phone">專線：(02) 2222-3333</div>
+        <div class="store-phone">Phone: (02) 2222-3333</div>
       </div>
   
-      <div class="store" data-region="北部">
-        <div class="store-name">中壢中正店</div>
-        <div class="store-address">地址：桃園市中壢區中正路23號</div>
+      <div class="store" data-region="Northern Region">
+        <div class="store-name">Zhongli Zhongzheng Store</div>
+        <div class="store-address">Address: No. 23, Zhongzheng Road, Zhongli District, Taoyuan City</div>
         <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
+          Hours:<br />
+          Weekdays: 11:00 AM – 2:30 PM / 5:00 PM – 10:30 PM<br />
+          Weekends (holidays): 11:00 AM – 10:30 PM
         </div>
-        <div class="store-phone">專線：(03) 456-7890</div>
+        <div class="store-phone">Phone: (03) 456-7890</div>
       </div>
   
-      <div class="store" data-region="中部">
-        <div class="store-name">台中公益店</div>
-        <div class="store-address">地址：台中市南屯區公益路二段50號</div>
+      <div class="store" data-region="Central Region">
+        <div class="store-name">Taichung Gongyi Store</div>
+        <div class="store-address">Address: No. 50, Section 2, Gongyi Road, Nantun District, Taichung City</div>
         <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
+          Hours:<br />
+          Weekdays: 11:00 AM – 2:30 PM / 5:00 PM – 10:30 PM<br />
+          Weekends (holidays): 11:00 AM – 10:30 PM
         </div>
-        <div class="store-phone">專線：(04) 9876-5432</div>
+        <div class="store-phone">Phone: (04) 9876-5432</div>
       </div>
   
-      <div class="store" data-region="南部">
-        <div class="store-name">高雄漢神店</div>
-        <div class="store-address">地址：高雄市前金區成功一路266號</div>
+      <div class="store" data-region="Southern Region">
+        <div class="store-name">Kaohsiung Hanshin Store</div>
+        <div class="store-address">Address: No. 266, Chenggong 1st Road, Qianjin District, Kaohsiung City</div>
         <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
+          Hours:<br />
+          Weekdays: 11:00 AM – 2:30 PM / 5:00 PM – 10:30 PM<br />
+          Weekends (holidays): 11:00 AM – 10:30 PM
         </div>
-        <div class="store-phone">專線：(07) 6543-2100</div>
+        <div class="store-phone">Phone: (07) 6543-2100</div>
       </div>
     </div>
   </section>  
 
 <section class="reserve-btn-section">
   <div class="reserve-btn-wrapper">
-    <a href=# class="reserve-btn">立即訂位</a>
+    <a href="{% url 'menu' %}"  class="reserve-btn">Order Now</a>
   </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/index/index.js"></script>
+<script src="/static/js/index.js"></script>
 {% endblock %}

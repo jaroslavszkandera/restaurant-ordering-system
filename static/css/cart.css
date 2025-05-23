@@ -40,60 +40,6 @@
   margin: 1rem auto 0; 
 }
 
-/* Table styling */
-.table {
-  background-color: #000000 !important; 
-  color: #ffffff !important;
-}
-
-.table-responsive {
-  background-color: transparent;
-  border: none; /* Ensure no border hides card border */
-}
-
-.table thead th {
-  background-color: transparent;
-  color: white !important;
-  text-align: center; 
-  padding-top: 1rem !important; 
-  padding-bottom: 0.8rem;
-}
-
-.table tbody tr {
-  border-bottom: 1px solid #666;
-  background-color: transparent;
-}
-
-.table tbody tr:last-child { /*  Remove divider below last item */
-  border-bottom: none !important;
-}
-
-.table tbody td {
-  background-color: transparent;
-  color: white !important;
-  text-align: center; /*  Center content */
-}
-
-/* Item name and category alignment */
-td h6 {
-  text-align: left;
-}
-
-td small {
-  display: block;
-  text-align: left;
-}
-
-.category-text {
-  color: #999 !important;
-  font-size: 0.8rem;
-  margin-top: 5px;
-}
-
-td:first-child {
-  text-align: left;
-}
-
 /* Trash button */
 .btn-danger,
 .update-btn {
@@ -245,4 +191,24 @@ margin-top: 20px;
 background-color: transparent !important;
 color: white !important;
 border: 2px solid yellow !important;
+}
+
+.btn-primary {
+  background: yellow !important;
+  color: black !important;
+  border: 2px solid transparent !important; 
+  border-color: yellow!important;
+  border-radius: 999px!important;
+  padding: 0.5rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  font-weight: bold !important;
+}
+
+.btn-primary:hover {
+  background-color: black !important;
+  color: white !important;
+  border: 2px solid yellow !important;
+  transition: all 0.3s ease;
 }

@@ -1,102 +1,108 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Checkout - Restaurant Name{% endblock %}
+{% block title %}CHECKOUT - Our restaurant{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/form.css">  {# 表單共用CSS #}
+<link rel="stylesheet" href="/static/css/sheet.css">  
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-lg-8">
-      <h1 class="mb-4">Checkout</h1>
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Shipping & Payment Information</h5>
-        </div>
-        <div class="card-body">
-          <form method="post">
-            {% csrf_token %}
+<main class="container d-flex flex-column align-items-center justify-content-start" style="margin-top: 100px;">
+  <div class="auth-container">
 
-            {% if not user.is_authenticated %}
-            <h5 class="mb-3">Contact Information</h5>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                {{ form.name|as_crispy_field }}
-              </div>
-              <div class="col-md-6 mb-3">
-                {{ form.email|as_crispy_field }}
-              </div>
+    <h1 class="auth-title">Checkout</h1>
+
+    <form method="post" class="w-100">
+      {% csrf_token %}
+
+      {% if messages %}
+        {% for message in messages %}
+          {% if 'checkout' in message.tags %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div class="mb-3">
-              {{ form.phone|as_crispy_field }}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <fieldset class="mb-4">
+        <legend class="h5">Shipping & Payment Information</legend>
+
+        {% if not user.is_authenticated %}
+          <h5 class="mb-3">Contact Information</h5>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              {{ form.name|as_crispy_field }}
             </div>
-            <hr>
-            {% else %}
-            <p>You are checking out as <strong>{{ user.username }}</strong>.</p>
-            <p>Name: {{ form.instance.name|default:user.customer.name|default:user.get_full_name|default:user.username
-              }}</p>
-            <p>Email: {{ form.instance.email|default:user.customer.email|default:user.email }}</p>
-            <p>Phone: {{ form.instance.phone|default:user.customer.phone|default:"Not set" }}</p>
-            <p><small class="text-muted">If these details need updating, please update them in your profile or ensure
-                your form allows this.</small></p>
-            {% if form.name %} <h5 class="mb-3">Verify or Update Your Details (Optional)</h5>
+            <div class="col-md-6 mb-3">
+              {{ form.email|as_crispy_field }}
+            </div>
+          </div>
+          <div class="mb-3">
+            {{ form.phone|as_crispy_field }}
+          </div>
+          <hr>
+        {% else %}
+          <p>You are checking out as <strong style="color: yellow; font-weight: bold;">{{ user.username }}</strong>.</p>
+          <p>Name: {{ form.instance.name|default:user.customer.name|default:user.get_full_name|default:user.username }}</p>
+          <p>Email: {{ form.instance.email|default:user.customer.email|default:user.email }}</p>
+          <p>Phone: {{ form.instance.phone|default:user.customer.phone|default:"Not set" }}</p>
+          <p><small class="text-muted checkout-note">If these details need updating, please update them in your profile or ensure your form allows this.</small></p>
+
+          {% if form.name %}
+            <h5 class="mb-3">Verify or Update Your Details (Optional)</h5>
             {{ form.name|as_crispy_field }}
             {{ form.email|as_crispy_field }}
             {{ form.phone|as_crispy_field }}
-            {% endif %}
-            <hr>
-            {% endif %}
-
-            <h5 class="mb-3">Special Instructions</h5>
-            {{ form.special_instructions|as_crispy_field }}
-
-            <!-- TODO(JS): Add payment fields here -->
-
-            <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-success btn-lg">
-                <i class="fas fa-lock me-2"></i>Place Order
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-4">
-      <h3 class="mb-4">Your Order Summary</h3>
-      <div class="card">
-        <div class="card-body">
-          {% if cart_items %}
-          <ul class="list-group list-group-flush">
-            {% for item in cart_items %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="my-0">{{ item.menu_item.name }}</h6>
-                <small class="text-muted">Quantity: {{ item.quantity }}</small>
-              </div>
-              <span class="text-muted">${{ item.subtotal|floatformat:2 }}</span>
-            </li>
-            {% endfor %}
-            <li class="list-group-item d-flex justify-content-between bg-light">
-              <span class="fw-bold">Subtotal</span>
-              <strong>${{ cart.total_price|floatformat:2 }}</strong>
-            </li>
-            {# Add lines for shipping, taxes if applicable #}
-            <li class="list-group-item d-flex justify-content-between">
-              <span class="fw-bold">Total</span>
-              <strong class="h5 mb-0">${{ cart.total_price|floatformat:2 }}</strong>
-            </li>
-          </ul>
-          {% else %}
-          <p class="text-center text-muted">Your cart is empty.</p>
           {% endif %}
-        </div>
-        <div class="card-footer text-center">
-          <a href="{% url 'view_cart' %}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-edit me-1"></i> Edit Cart
-          </a>
-        </div>
-      </div>
+          <hr>
+        {% endif %}
+
+        <h5 class="mb-3">Special Instructions</h5>
+        {{ form.special_instructions|as_crispy_field }}
+      </fieldset>
+
+      <button type="submit" class="btn w-100 custom-login-btn">
+        <i class="fas fa-lock me-2"></i>Place Order
+      </button>
+    </form>
+
+    <hr class="my-4">
+
+    <h3 class="mb-3 text-center">Your Order Summary</h3>
+    {% if cart_items %}
+      <ul class="list-group list-group-flush">
+        {% for item in cart_items %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="order-item-details">
+              <h6 class="my-0">{{ item.menu_item.name }}</h6>
+              <small class="text-muted">Quantity: {{ item.quantity }}</small>
+            </div>
+            <span class="text-muted">${{ item.subtotal|floatformat:2 }}</span>
+          </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between bg-dark text-white">
+          <span class="fw-bold">Subtotal</span>
+          <strong>${{ cart.total_price|floatformat:2 }}</strong>
+        </li>
+        <li class="list-group-item d-flex justify-content-between bg-dark text-white">
+          <span class="fw-bold">Total</span>
+          <strong class="h5 mb-0">${{ cart.total_price|floatformat:2 }}</strong>
+        </li>
+      </ul>
+    {% else %}
+      <p class="text-center text-muted">Your cart is empty.</p>
+    {% endif %}
+
+    <div class="text-center mt-3">
+    <a href="{% url 'view_cart' %}" class="edit-cart-btn">
+      <i class="fas fa-edit me-1"></i> Edit Cart
+    </a>
     </div>
   </div>
-</div>
+</main>
 {% endblock %}
+

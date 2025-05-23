@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Order History - Restaurant Name{% endblock %}
+{% block title %}ORDER HISTORY - Our restaurant{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/sheet.css">
+<link rel="stylesheet" href="/static/css/history.css">
+<link rel="stylesheet" href="/static/css/form.css">
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -9,22 +15,23 @@
   {% if orders %}
   <div class="list-group shadow-sm">
     {% for order in orders %}
-    <a href="{% url 'order_detail' order.id %}"
-      class="list-group-item list-group-item-action flex-column align-items-start mb-2 rounded">
+    <a href="{% url 'order_detail' order.id %}" class="list-group-item list-group-item-action flex-column align-items-start rounded">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">Order #{{ order.id }}</h5>
         <small class="text-muted">{{ order.created_at|date:"F d, Y" }}</small>
       </div>
       <p class="mb-1">
-        Total: <strong class="text-primary">${{ order.total_price|floatformat:2 }}</strong>
-        - Status: <span class="badge 
-                    {% if order.status == 'completed' %}bg-success
-                    {% elif order.status == 'pending' %}bg-warning text-dark
-                    {% elif order.status == 'cancelled' %}bg-danger
-                    {% else %}bg-info text-dark{% endif %}">
+        Total: <strong class="text-white">${{ order.total_price|floatformat:2 }}</strong>
+        - Status:
+        <span class="status-badge 
+                    {% if order.status == 'completed' %}status-completed
+                    {% elif order.status == 'pending' %}status-pending
+                    {% elif order.status == 'cancelled' %}status-cancelled
+                    {% else %}status-other{% endif %}">
           {{ order.get_status_display }}
         </span>
       </p>
+
       <small class="text-muted">
         {{ order.items.count }} item(s).
         {% for item in order.items.all|slice:":3" %}

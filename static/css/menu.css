@@ -141,7 +141,6 @@
   transition: font-weight 0.2s ease;
 }
 
-/* Hover 時變粗體 */
 .floating-category-menu .category-btn:hover {
   font-weight: bold;
 }

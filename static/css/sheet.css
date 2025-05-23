@@ -1,0 +1,44 @@
+/* 訂單摘要中的文字（數量與價格） */
+.list-group-item {
+  background-color: transparent !important;
+  color: white !important;
+}
+.list-group-item small,
+.list-group-item span {
+  color: white !important;
+}
+
+.list-group-item.bg-dark {
+  background-color: black !important;
+  color: white !important;
+}
+
+.edit-cart-btn {
+  background-color: yellow !important;
+  border: 1.5px solid yellow !important;
+  color: black !important;
+  font-weight: bold;
+  padding: 0.3rem 1rem;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+  text-decoration: none !important;
+}
+
+.edit-cart-btn:hover {
+  background-color: black !important;
+  color: white !important;
+}
+
+.order-item-details h6 {
+  margin-bottom: 0.25rem; /* 商品名稱與數量之間的垂直距離 */
+}
+
+.order-item-details small {
+  display: block; /* 強制數量單獨換行 */
+  margin-top: 0.7rem; /* 距離商品名稱的間距 */
+}
+
+.order-item-details h6 {
+  font-weight: bold !important;
+}
+

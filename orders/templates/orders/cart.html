@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}My Cart - Restaurant Name{% endblock %}
+{% block title %}My CART - Our restaurant{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/cart/cart.css">
+<link rel="stylesheet" href="/static/css/cart.css">
+<link rel="stylesheet" href="/static/css/table.css">
 {% endblock %}
 
 {% block content %}
@@ -119,11 +120,4 @@
 {% endif %}
 {% endblock %}
 
-{% block extra_js %}
-<script>
-  $(document).ready(function () {
-    // No increment/decrement buttons needed, using native input arrows
-  });
-</script>
-{% endblock %}
 

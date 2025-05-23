@@ -1,33 +1,39 @@
 {% extends 'base.html' %}
 
-{% block title %}Order #{{ order.id }} Details - Restaurant Name{% endblock %}
+{% block title %}ORDER #{{ order.id }} DETAILS - Our restaurant{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/form.css">
+<link rel="stylesheet" href="/static/css/sheet.css">
+<link rel="stylesheet" href="/static/css/table.css">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 pt-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="mb-0">Order Details</h1>
-    <a href="{% url 'order_history' %}" class="btn btn-outline-secondary">
+    <h1 class="mb-0 order-details-heading">Order Details</h1>
+    <a href="{% url 'order_history' %}" class="btn edit-cart-btn">
       <i class="fas fa-arrow-left me-2"></i>Back to Order History
     </a>
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+  <div class="auth-container mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="mb-0">Order #{{ order.id }}</h4>
-      <span class="badge 
-                {% if order.status == 'completed' %}bg-success
-                {% elif order.status == 'pending' %}bg-warning text-dark
-                {% elif order.status == 'cancelled' %}bg-danger
-                {% else %}bg-info text-dark{% endif %}">
+      <span class="status-badge 
+                  {% if order.status == 'completed' %}status-completed
+                  {% elif order.status == 'pending' %}status-pending
+                  {% elif order.status == 'cancelled' %}status-cancelled
+                  {% else %}status-other{% endif %}">
         {{ order.get_status_display }}
       </span>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <h5>Order Information:</h5>
-          <p><strong>Date Placed:</strong> {{ order.created_at|date:"F d, Y, P" }}</p>
-          {% if order.customer %}
+
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Order Information:</h5>
+        <p><strong>Date Placed:</strong> {{ order.created_at|date:"F d, Y, P" }}</p>
+        {% if order.customer %}
           <p><strong>Customer Name:</strong> {{ order.customer.name }}</p>
           {% if order.customer.email %}
           <p><strong>Customer Email:</strong> {{ order.customer.email }}</p>
@@ -35,56 +41,56 @@
           {% if order.customer.phone %}
           <p><strong>Customer Phone:</strong> {{ order.customer.phone }}</p>
           {% endif %}
-          {% else %}
+        {% else %}
           <p><em>Customer details not available.</em></p>
-          {% endif %}
-        </div>
-        <div class="col-md-6">
-          {% if order.special_instructions %}
-          <h5>Special Instructions:</h5>
-          <p class="fst-italic bg-light p-2 rounded">"{{ order.special_instructions }}"</p>
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
-
-      <hr class="my-4">
-
-      <h5>Items Ordered:</h5>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead class="table-light">
-            <tr>
-              <th>Item</th>
-              <th class="text-center">Quantity</th>
-              <th class="text-end">Price per Item</th>
-              <th class="text-end">Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in order.items.all %}
-            <tr>
-              <td>{{ item.menu_item.name }}</td>
-              <td class="text-center">{{ item.quantity }}</td>
-              <td class="text-end">${{ item.price|floatformat:2 }}</td>
-              <td class="text-end fw-bold">${{ item.subtotal|floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" class="text-end fw-bold border-0">
-                <h4>Total:</h4>
-              </td>
-              <td class="text-end fw-bold border-0">
-                <h4>${{ order.total_price|floatformat:2 }}</h4>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+      <div class="col-md-6">
+        {% if order.special_instructions %}
+        <h5>Special Instructions:</h5>
+        <p class="fst-italic p-2 rounded border border-light">"{{ order.special_instructions }}"</p>
+        {% endif %}
       </div>
     </div>
-    <div class="card-footer text-center">
-      <a href="{% url 'menu' %}" class="btn btn-primary">
+
+    <hr class="my-4 border-light">
+
+    <h5>Items Ordered:</h5>
+    <div class="table-responsive">
+      <table class="table table-hover text-white">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="text-center">Quantity</th>
+            <th class="text-end">Price per Item</th>
+            <th class="text-end">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td>{{ item.menu_item.name }}</td>
+            <td class="text-center">{{ item.quantity }}</td>
+            <td class="text-end">${{ item.price|floatformat:2 }}</td>
+            <td class="text-end fw-bold">${{ item.subtotal|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-end fw-bold border-0">
+              <h4>Total:</h4>
+            </td>
+            <td class="text-end fw-bold border-0">
+              <h4>${{ order.total_price|floatformat:2 }}</h4>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'menu' %}" class="btn edit-cart-btn">
         <i class="fas fa-utensils me-2"></i>Order Again
       </a>
     </div>
