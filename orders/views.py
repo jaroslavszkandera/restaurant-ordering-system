@@ -5,6 +5,7 @@ from django.contrib.auth import login
 from django.http import JsonResponse
 from django.db import transaction
 from django.db.models import F
+from django.views.decorators.http import require_POST
 
 from .models import Category, MenuItem, Customer, Cart, CartItem, Order, OrderItem
 from .forms import (
@@ -197,6 +198,26 @@ def view_cart(request):
         "orders/cart.html",
         {"cart": cart, "cart_items": cart_items},
     )
+
+@require_POST
+@transaction.atomic
+def update_cart_and_checkout(request):
+    cart = get_or_create_cart(request)
+
+    for item in cart.items.all():
+        quantity = request.POST.get(f"quantity_{item.id}")
+        if quantity is not None:
+            try:
+                qty = int(quantity)
+                if qty > 0:
+                    item.quantity = qty
+                    item.save()
+                else:
+                    item.delete()
+            except ValueError:
+                continue
+
+    return redirect("checkout")
 
 
 @transaction.atomic
@@ -421,3 +442,9 @@ def register(request):
         "registration/register.html",
         {"user_form": user_form, "customer_form": customer_form},
     )
+
+def contact(request):
+    return render(request, 'orders/contact.html')
+
+def about(request):
+    return render(request, 'orders/about.html')

@@ -3,110 +3,108 @@
 {% block title %}My Cart - Restaurant Name{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/cart/cart.css">
+<link rel="stylesheet" href="/static/css/cart.css">
 {% endblock %}
 
 {% block content %}
 <h2 class="my-cart-heading">My Cart</h2>
 
 {% if cart_items %}
-<div class="row">
-  <div class="col-lg-8">
-    <div class="card mb-4">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0" id="cart-item-count">Cart Items ({{ cart_items|length }})</h5>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th class="text-center">Price</th>
-                <th class="text-center">Quantity</th>
-                <th class="text-end">Subtotal</th>
-                <th class="text-end"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in cart_items %}
-              <tr>
-                <td>
-                  <div class="d-flex align-items-center">
-                    {% if item.menu_item.image %}
-                    <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" class="me-3 item-image"
-                      style="object-fit: cover;">
-                    {% else %}
-                    <div class="me-3 bg-light d-flex align-items-center justify-content-center item-image">
-                      <i class="fas fa-utensils text-secondary"></i>
-                    </div>
-                    {% endif %}
-                    <div>
-                      <h6 class="mb-0">{{ item.menu_item.name }}</h6>
-                      <small class="category-text">{{ item.menu_item.category.name }}</small>
-                    </div>
-                  </div>
-                </td>
-                <td class="text-center">${{ item.menu_item.price }}</td>
-                <td class="text-center">
-                  <form method="post" action="{% url 'view_cart' %}" class="update-cart-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                    <div class="quantity-update-container">
-                      <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="10"
-                        class="form-control form-control-sm quantity-input" data-item-id="{{ item.id }}">
-                      <button type="submit" class="btn btn-sm update-btn">Update</button>
-                    </div>
-                  </form>
-                </td>
-                <td class="text-end">${{ item.subtotal }}</td>
-                <td class="text-end">
-                  <form method="post" action="{% url 'view_cart' %}" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                    <input type="hidden" name="quantity" value="0">
-                    <button type="submit" class="btn btn-sm btn-danger">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </form>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+<form id="checkout-form" method="post" action="{% url 'update_cart_and_checkout' %}">
+  {% csrf_token %}
 
-    <div class="d-flex justify-content-between mb-4">
-      <a href="{% url 'menu' %}" class="btn btn-outline-primary">
-        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
-      </a>
-    </div>
-  </div>
-
-  <div class="col-lg-4">
-    <div class="card second-card">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Order Summary</h5>
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0" id="cart-item-count">Cart Items ({{ cart_items|length }})</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th class="text-center">Price</th>
+                  <th class="text-center">Quantity</th>
+                  <th class="text-end">Subtotal</th>
+                  <th class="text-end"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in cart_items %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      {% if item.menu_item.image %}
+                      <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" class="me-3 item-image"
+                        style="object-fit: cover;">
+                      {% else %}
+                      <div class="me-3 bg-light d-flex align-items-center justify-content-center item-image">
+                        <i class="fas fa-utensils text-secondary"></i>
+                      </div>
+                      {% endif %}
+                      <div>
+                        <h6 class="mb-0">{{ item.menu_item.name }}</h6>
+                        <small class="category-text">{{ item.menu_item.category.name }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center item-price">${{ item.menu_item.price }}</td>
+                  <td class="text-center">
+                    <input type="hidden" name="cart_item_id_{{ item.id }}" value="{{ item.id }}">
+                    <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="0" max="10"
+                      class="form-control form-control-sm quantity-input" data-item-id="{{ item.id }}">
+                  </td>
+                  <td class="text-end item-subtotal">${{ item.subtotal }}</td>
+                  <td class="text-end">
+                    <form method="post" action="{% url 'view_cart' %}" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="cart_item_id" value="{{ item.id }}">
+                      <input type="hidden" name="quantity" value="0">
+                      <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
-          <span>Subtotal:</span>
-          <span>${{ cart.total_price }}</span>
-        </div>
-        <hr>
-        <div class="d-flex justify-content-between mb-3">
-          <span class="fw-bold">Total:</span>
-          <span class="fw-bold">${{ cart.total_price }}</span>
-        </div>
-        <a href="{% url 'checkout' %}" class="btn btn-checkout w-100">
-          <i class="fas fa-check-circle me-2"></i>Proceed to Checkout
+
+      <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'menu' %}" class="btn btn-outline-primary">
+          <i class="fas fa-arrow-left me-2"></i>Continue Shopping
         </a>
       </div>
     </div>
+
+    <div class="col-lg-4">
+      <div class="card second-card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Order Summary</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-3">
+            <span>Subtotal:</span>
+            <span id="cart-total-price">${{ cart.total_price }}</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between mb-3">
+            <span class="fw-bold">Total:</span>
+            <span class="fw-bold" id="cart-total-price-total">${{ cart.total_price }}</span>
+          </div>
+          <button type="submit" class="btn btn-checkout w-100">
+            <i class="fas fa-check-circle me-2"></i>Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</form>
 {% else %}
 <div class="text-center py-5">
   <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
@@ -121,9 +119,51 @@
 
 {% block extra_js %}
 <script>
+  function updatePrices() {
+    let total = 0;
+    document.querySelectorAll('tr').forEach(function (row) {
+      const priceEl = row.querySelector('.item-price');
+      const qtyEl = row.querySelector('.quantity-input');
+      const subtotalEl = row.querySelector('.item-subtotal');
+
+      if (priceEl && qtyEl && subtotalEl) {
+        const price = parseFloat(priceEl.textContent.replace('$', '')) || 0;
+        const qty = parseInt(qtyEl.value) || 0;
+        const subtotal = price * qty;
+        subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+        total += subtotal;
+      }
+    });
+    document.getElementById('cart-total-price').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('cart-total-price-total').textContent = `$${total.toFixed(2)}`;
+  }
+
+  document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('change', updatePrices);
+  });
+
   $(document).ready(function () {
-    // No increment/decrement buttons needed, using native input arrows
+    $('.increment-qty').click(function () {
+      let input = $(this).siblings('.quantity-input');
+      let value = parseInt(input.val());
+      if (value < 10) {
+        input.val(value + 1);
+        updatePrices();
+      }
+    });
+
+    $('.decrement-qty').click(function () {
+      let input = $(this).siblings('.quantity-input');
+      let value = parseInt(input.val());
+      if (value > 1) {
+        input.val(value - 1);
+        updatePrices();
+      }
+    });
+
+    $('.remove-item').click(function () {
+      $(this).closest('form').submit();
+    });
   });
 </script>
 {% endblock %}
-
