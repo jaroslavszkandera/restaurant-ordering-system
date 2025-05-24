@@ -1,0 +1,44 @@
+.card {
+  background-color: black !important;
+  color: white !important;
+  border: 1.5px solid white !important;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.card .card-header {
+  background-color: black !important;
+  color: white !important;
+  border-bottom: none;
+  text-align: center;
+  font-size: 1.3rem;
+}
+
+.list-group-item {
+  background-color: #222 !important;
+  color: white !important;
+  border: 1px solid white !important;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.badge.bg-info {
+  background-color: yellow !important;
+  color: black !important;
+  font-weight: bold;
+}
+
+.custom-action-btn {
+  background-color: yellow !important;
+  color: black !important;
+  font-weight: bold;
+  border: 2px solid yellow !important;
+  transition: all 0.3s ease;
+  border-radius: 999px !important;
+}
+
+.custom-action-btn:hover {
+  background-color: transparent !important;
+  color: white !important;
+  border: 2px solid yellow !important;
+}
