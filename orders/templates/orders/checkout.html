@@ -32,24 +32,28 @@
             <hr>
             {% else %}
             <p>You are checking out as <strong>{{ user.username }}</strong>.</p>
-            <p>Name: {{ form.instance.name|default:user.customer.name|default:user.get_full_name|default:user.username
-              }}</p>
-            <p>Email: {{ form.instance.email|default:user.customer.email|default:user.email }}</p>
-            <p>Phone: {{ form.instance.phone|default:user.customer.phone|default:"Not set" }}</p>
-            <p><small class="text-muted">If these details need updating, please update them in your profile or ensure
-                your form allows this.</small></p>
-            {% if form.name %} <h5 class="mb-3">Verify or Update Your Details (Optional)</h5>
-            {{ form.name|as_crispy_field }}
-            {{ form.email|as_crispy_field }}
-            {{ form.phone|as_crispy_field }}
-            {% endif %}
+            <h5 class="mb-3">Your Details <small class="text-muted">(Update if necessary)</small></h5>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                {{ form.name|as_crispy_field }}
+              </div>
+              <div class="col-md-6 mb-3">
+                {{ form.email|as_crispy_field }}
+              </div>
+            </div>
+            <div class="mb-3">
+              {{ form.phone|as_crispy_field }}
+            </div>
             <hr>
             {% endif %}
 
             <h5 class="mb-3">Special Instructions</h5>
             {{ form.special_instructions|as_crispy_field }}
 
-            <!-- TODO(JS): Add payment fields here -->
+            <div class="alert alert-info mt-3">
+              Payment integration (e.g., Stripe, PayPal) would be added here.
+              For now, this is a placeholder.
+            </div>
 
             <div class="d-grid mt-4">
               <button type="submit" class="btn btn-success btn-lg">
@@ -90,11 +94,14 @@
           <p class="text-center text-muted">Your cart is empty.</p>
           {% endif %}
         </div>
+        {% if cart_items %}
         <div class="card-footer text-center">
-          <a href="{% url 'view_cart' %}" class="btn btn-sm btn-outline-secondary">
+          <a href="{% url 'view_cart' %}" class="btn btn-sm btn-outline-secondary"> {# Assuming 'view_cart' is your cart
+            URL #}
             <i class="fas fa-edit me-1"></i> Edit Cart
           </a>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>

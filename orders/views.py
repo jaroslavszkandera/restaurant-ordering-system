@@ -18,61 +18,55 @@ from .forms import (
 
 
 def get_or_create_customer_for_user(user):
-    """
-    Retrieves or creates a Customer profile for a given User.
-    """
     customer, created = Customer.objects.get_or_create(
         user=user,
         defaults={
             "name": user.get_full_name() or user.username,
             "email": user.email,
+            # "phone":
         },
     )
     return customer
 
 
 def get_or_create_cart(request):
-    """Helper function to get or create a cart based on session or user."""
-    cart = None
-    if request.user.is_authenticated:
-        customer = get_or_create_customer_for_user(request.user)
-        cart, created = Cart.objects.get_or_create(customer=customer)
+    customer = None
+    if request.user.is_authenticated and hasattr(request.user, "customer"):
+        customer = request.user.customer
 
-        # Check if there's a session cart to merge
-        session_id = request.session.get("cart_session_id")
-        if session_id:
+    if customer:
+        cart, created = Cart.objects.get_or_create(customer=customer)
+        session_cart_id = request.session.get("cart_session_id")
+        if session_cart_id:
             try:
-                session_cart = Cart.objects.get(
-                    session_id=session_id, customer__isnull=True
+                guest_cart = Cart.objects.get(
+                    session_id=session_cart_id, customer__isnull=True
                 )
-                # Merge session_cart into user_cart
-                for item in session_cart.items.all():
-                    user_cart_item, item_created = CartItem.objects.get_or_create(
+                for item in guest_cart.items.all():
+                    existing_item, item_created = CartItem.objects.get_or_create(
                         cart=cart,
                         menu_item=item.menu_item,
                         defaults={"quantity": item.quantity},
                     )
                     if not item_created:
-                        user_cart_item.quantity = F("quantity") + item.quantity
-                        user_cart_item.save()
-                session_cart.delete()
-                request.session.pop("cart_session_id", None)  # Clear session key
+                        existing_item.quantity += item.quantity
+                        existing_item.save()
+                guest_cart.delete()
+                del request.session["cart_session_id"]
             except Cart.DoesNotExist:
-                pass  # No session cart to merge or already merged
-
+                pass
+        return cart
     else:
         session_id = request.session.get("cart_session_id")
         if not session_id:
-            request.session.create()  # Ensure session exists
+            request.session.create()
             session_id = request.session.session_key
-            request.session["cart_session_id"] = (
-                session_id  # Store specifically for cart
-            )
+            request.session["cart_session_id"] = session_id
 
         cart, created = Cart.objects.get_or_create(
             session_id=session_id, customer__isnull=True
         )
-    return cart
+        return cart
 
 
 def index(request):
@@ -111,7 +105,7 @@ def menu(request, category_id=None):
     )
 
 
-@transaction.atomic  # JS: maybe an overkill
+@transaction.atomic
 def add_to_cart(request):
     """Add an item to the cart."""
     if request.method == "POST":
@@ -190,14 +184,13 @@ def view_cart(request):
             return redirect("view_cart")
         else:
             messages.error(request, "Invalid data submitted. Please check your input.")
-            # No need to repopulate update_forms for error display if template renders manually
 
-    # For GET request, no individual forms are needed if template renders inputs manually
     return render(
         request,
         "orders/cart.html",
         {"cart": cart, "cart_items": cart_items},
     )
+
 
 @require_POST
 @transaction.atomic
@@ -222,51 +215,51 @@ def update_cart_and_checkout(request):
 
 @transaction.atomic
 def checkout(request):
-    """Checkout process."""
     cart = get_or_create_cart(request)
 
-    if not cart.items.exists():
+    if not cart or not cart.items.exists():
         messages.warning(request, "Your cart is empty!")
         return redirect("menu")
 
-    customer = None
+    current_customer_instance = None
     if request.user.is_authenticated:
-        customer = get_or_create_customer_for_user(request.user)
+        current_customer_instance = get_or_create_customer_for_user(request.user)
 
     if request.method == "POST":
-        form = CheckoutForm(
-            request.POST, user=request.user, instance=customer if customer else None
-        )
+        form = CheckoutForm(request.POST, user=request.user)
         if form.is_valid():
+            customer_data_from_form = {
+                "name": form.cleaned_data["name"],
+                "email": form.cleaned_data["email"],
+                "phone": form.cleaned_data["phone"],
+            }
+            final_customer = None
+
             if request.user.is_authenticated:
-                # Customer should already be set or
-                #   created via get_or_create_cart/get_or_create_customer_for_user
-                # Update customer details if the form allows it (e.g. address, phone)
-                if (
-                    customer and form.has_changed()
-                ):  # Check if form is bound to customer instance and has changes
-                    form.save()
-            else:
-                customer_data = {
-                    key: form.cleaned_data[key]
-                    for key in ["name", "email", "phone"]
-                    if key in form.cleaned_data
-                }
-                # This logic might need refinement based on CheckoutForm structure
-                # email is unique for customers, get_or_create by email.
-                if "email" in customer_data:
-                    customer, _ = Customer.objects.get_or_create(
-                        email=customer_data["email"], defaults=customer_data
+                final_customer = current_customer_instance
+                needs_save = False
+                for field, value in customer_data_from_form.items():
+                    if value and getattr(final_customer, field) != value:
+                        setattr(final_customer, field, value)
+                        needs_save = True
+                if needs_save:
+                    if final_customer.user.email != customer_data_from_form["email"]:
+                        final_customer.user.email = customer_data_from_form["email"]
+                        final_customer.user.save(update_fields=["email"])
+                    final_customer.save()
+            else:  # Guest user
+                try:
+                    final_customer = Customer.objects.get(
+                        email=customer_data_from_form["email"], user__isnull=True
                     )
-                    if not _:  # if customer was fetched, update details
-                        for attr, value in customer_data.items():
-                            setattr(customer, attr, value)
-                        customer.save()
-                else:  # Fallback if no email for guest, less ideal
-                    customer = Customer.objects.create(**customer_data)
+                    final_customer.name = customer_data_from_form["name"]
+                    final_customer.phone = customer_data_from_form["phone"]
+                    final_customer.save()
+                except Customer.DoesNotExist:
+                    final_customer = Customer.objects.create(**customer_data_from_form)
 
             order = Order.objects.create(
-                customer=customer,
+                customer=final_customer,
                 status=Order.Status.PENDING,
                 special_instructions=form.cleaned_data.get("special_instructions", ""),
             )
@@ -276,27 +269,29 @@ def checkout(request):
                     order=order,
                     menu_item=cart_item.menu_item,
                     quantity=cart_item.quantity,
-                    price=cart_item.menu_item.price,  # Crucial: price at time of order
+                    price=cart_item.menu_item.price,
                 )
 
             cart.items.all().delete()
-            if (
-                cart.session_id and not cart.customer
-            ):  # If it was a session-only cart, can delete it.
+            if cart.session_id and not cart.customer:
                 cart.delete()
-                request.session.pop("cart_session_id", None)
+                if "cart_session_id" in request.session:
+                    del request.session["cart_session_id"]
 
             messages.success(request, "Order placed successfully!")
+            request.session["last_order_id"] = order.id
             return redirect("order_confirmation", order_id=order.id)
+        else:
+            messages.error(
+                request, "Please correct the errors below. Check all fields."
+            )
     else:
-        initial_data = {}
-        if customer:  # Pre-fill for logged-in user
-            initial_data = {
-                "name": customer.name,
-                "email": customer.email,
-                "phone": customer.phone,
-            }
-        form = CheckoutForm(user=request.user, initial=initial_data)
+        initial_form_data = {}
+        if current_customer_instance:  # Pre-fill for authenticated user
+            initial_form_data["name"] = current_customer_instance.name
+            initial_form_data["email"] = current_customer_instance.email
+            initial_form_data["phone"] = current_customer_instance.phone
+        form = CheckoutForm(user=request.user, initial=initial_form_data)
 
     return render(
         request,
@@ -310,36 +305,33 @@ def checkout(request):
 
 
 def order_confirmation(request, order_id):
-    """Order confirmation page."""
-    order = get_object_or_404(Order.objects.select_related("customer"), id=order_id)
-
-    # Security check
+    order = get_object_or_404(
+        Order.objects.select_related("customer").prefetch_related("items__menu_item"),
+        id=order_id,
+    )
     can_view = False
+
     if request.user.is_authenticated and hasattr(request.user, "customer"):
         if order.customer == request.user.customer:
             can_view = True
-    # Add logic here if guest orders can be viewed via a session key or unique token
-    # For now, only authenticated owners can view.
+    elif order.customer and not order.customer.user:
+        last_order_id_in_session = request.session.get("last_order_id")
+        if last_order_id_in_session == order.id:
+            can_view = True
 
     if not can_view:
-        # Check if order was placed in current session for a guest (more complex, needs session tracking for order_id)
-        # For simplicity, current check:
-        if not (
-            request.user.is_authenticated
-            and hasattr(request.user, "customer")
-            and order.customer == request.user.customer
-        ):
-            messages.error(
-                request, "You don't have permission to view this order confirmation."
-            )
-            return redirect("index")
+        messages.error(
+            request,
+            "You don't have permission to view this order confirmation, or your session has expired.",
+        )
+        return redirect("index")  # or menu
 
     return render(request, "orders/order_confirmation.html", {"order": order})
 
 
+# TODO
 @login_required
 def order_detail(request, order_id):
-    """Displays details of a specific order."""
     try:
         customer = request.user.customer
         order = get_object_or_404(
@@ -352,9 +344,7 @@ def order_detail(request, order_id):
     except Customer.DoesNotExist:
         messages.error(request, "Customer profile not found.")
         return redirect("index")
-    except (
-        Order.DoesNotExist
-    ):  # Should be caught by get_object_or_404 if customer filter is not applied first
+    except Order.DoesNotExist:
         messages.error(
             request, "Order not found or you do not have permission to view it."
         )
@@ -363,6 +353,7 @@ def order_detail(request, order_id):
     return render(request, "orders/order_detail.html", {"order": order})
 
 
+# TODO
 @login_required
 def order_history(request):
     """View order history for authenticated users."""
@@ -374,7 +365,6 @@ def order_history(request):
             .prefetch_related("items")
         )
     except Customer.DoesNotExist:
-        # This case should ideally be handled by ensuring customer profile exists upon login/registration.
         messages.warning(request, "No customer profile found to display order history.")
         orders_list = []
 
@@ -389,23 +379,17 @@ def register(request):
 
     if request.method == "POST":
         user_form = UserRegistrationForm(request.POST)
-        customer_form = CustomerForm(
-            request.POST
-        )  # Assuming CustomerForm collects name, phone, email
+        customer_form = CustomerForm(request.POST)
 
         if user_form.is_valid() and customer_form.is_valid():
             user = user_form.save()
 
             customer = customer_form.save(commit=False)
             customer.user = user
-            # Ensure customer name/email are consistent if User model has them
-            # customer.name = user.get_full_name() or user.username (if CustomerForm doesn't have name)
-            # customer.email = user.email (if CustomerForm doesn't have email)
             customer.save()
 
-            login(request, user)  # Log the user in
+            login(request, user)
 
-            # Merge session cart to user's cart
             session_id = request.session.get("cart_session_id")
             if session_id:
                 try:
@@ -420,14 +404,14 @@ def register(request):
                             menu_item=item.menu_item,
                             defaults={"quantity": item.quantity},
                         )
-                        if not created:  # Item already in user's cart, sum quantities
+                        if not created:
                             user_cart_item.quantity = F("quantity") + item.quantity
                             user_cart_item.save()
 
                     session_cart.delete()
                     request.session.pop("cart_session_id", None)
                 except Cart.DoesNotExist:
-                    pass  # No session cart to merge
+                    pass
 
             messages.success(request, "Registration successful! Welcome.")
             return redirect("index")
@@ -443,8 +427,12 @@ def register(request):
         {"user_form": user_form, "customer_form": customer_form},
     )
 
-def contact(request):
-    return render(request, 'orders/contact.html')
 
+# TODO
+def contact(request):
+    return render(request, "orders/contact.html")
+
+
+# TODO
 def about(request):
-    return render(request, 'orders/about.html')
+    return render(request, "orders/about.html")
