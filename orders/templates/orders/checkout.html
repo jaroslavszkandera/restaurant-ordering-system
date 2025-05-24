@@ -3,14 +3,19 @@
 
 {% block title %}Checkout - 番茄館{% endblock %}
 
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/checkout.css">
+{% endblock %}
+
 {% block content %}
+
 <div class="container mt-5">
   <div class="row">
     <div class="col-lg-8">
-      <h1 class="mb-4">Checkout</h1>
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Shipping & Payment Information</h5>
+          <h5 class="mb-0">Checkout Information</h5>
         </div>
         <div class="card-body">
           <form method="post">
@@ -50,13 +55,8 @@
             <h5 class="mb-3">Special Instructions</h5>
             {{ form.special_instructions|as_crispy_field }}
 
-            <div class="alert alert-info mt-3">
-              Payment integration (e.g., Stripe, PayPal) would be added here.
-              For now, this is a placeholder.
-            </div>
-
             <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-success btn-lg">
+              <button type="submit" class="btn custom-action-btn btn-lg">
                 <i class="fas fa-lock me-2"></i>Place Order
               </button>
             </div>
@@ -84,7 +84,6 @@
               <span class="fw-bold">Subtotal</span>
               <strong>${{ cart.total_price|floatformat:2 }}</strong>
             </li>
-            {# Add lines for shipping, taxes if applicable #}
             <li class="list-group-item d-flex justify-content-between">
               <span class="fw-bold">Total</span>
               <strong class="h5 mb-0">${{ cart.total_price|floatformat:2 }}</strong>
@@ -96,8 +95,7 @@
         </div>
         {% if cart_items %}
         <div class="card-footer text-center">
-          <a href="{% url 'view_cart' %}" class="btn btn-sm btn-outline-secondary"> {# Assuming 'view_cart' is your cart
-            URL #}
+          <a href="{% url 'view_cart' %}" class="btn custom-action-btn btn-sm">
             <i class="fas fa-edit me-1"></i> Edit Cart
           </a>
         </div>
