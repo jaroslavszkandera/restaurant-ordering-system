@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Menu - Restaurant Name{% endblock %}
+{% block title %}Menu - 番茄館{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/menu.css">
@@ -18,9 +18,12 @@
     <button class="scroll-btn left" onclick="scrollCategories(-1)">←</button>
     <div class="category-list-wrapper overflow-hidden flex-grow-1">
       <div class="category-list d-flex">
-        <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}" data-href="{% url 'menu' %}" data-category="all">ALL</a>
+        <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}"
+          data-href="{% url 'menu' %}" data-category="all">ALL</a>
         {% for cat_obj in categories %}
-        <a href="{% url 'menu_category' cat_obj.id %}" class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}" data-href="{% url 'menu_category' cat_obj.id %}" data-category="{{ cat_obj.name|lower }}">
+        <a href="{% url 'menu_category' cat_obj.id %}"
+          class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}"
+          data-href="{% url 'menu_category' cat_obj.id %}" data-category="{{ cat_obj.name|lower }}">
           {{ cat_obj.name }}
         </a>
         {% endfor %}
@@ -29,32 +32,32 @@
     <button class="scroll-btn right" onclick="scrollCategories(1)">→</button>
   </section>
 
-<!-- Floating Menu Button (右下角圓形按鈕) -->
-<button id="floating-menu-btn" class="floating-menu-btn">
-  ☰
-</button>
+  <!-- Floating Menu Button (右下角圓形按鈕) -->
+  <button id="floating-menu-btn" class="floating-menu-btn">
+    ☰
+  </button>
 
-<!-- Hidden Category Menu -->
-<div id="floating-category-menu" class="floating-category-menu">
-  <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}" data-category="all">ALL</a>
-  {% for cat_obj in categories %}
+  <!-- Hidden Category Menu -->
+  <div id="floating-category-menu" class="floating-category-menu">
+    <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}" data-category="all">ALL</a>
+    {% for cat_obj in categories %}
     <a href="{% url 'menu_category' cat_obj.id %}"
-       class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}"
-       data-category="{{ cat_obj.name|lower }}">
+      class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}"
+      data-category="{{ cat_obj.name|lower }}">
       {{ cat_obj.name }}
     </a>
-  {% endfor %}
-</div>
+    {% endfor %}
+  </div>
 
   {% if menu_items %}
   <section id="menu-items" class="menu-grid mt-4">
     {% for item in menu_items %}
     <div class="menu-card">
       <div class="card-left">
-        {% if item.image %}      
+        {% if item.image %}
         <div class="img-container">
           <img src="{{ item.image.url }}" alt="{{ item.name }}">
-        </div>           
+        </div>
         {% else %}
         <i class="fas fa-utensils fa-3x text-muted"></i>
         {% endif %}

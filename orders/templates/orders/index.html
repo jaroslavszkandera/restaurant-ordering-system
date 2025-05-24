@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}HOME - 餐廳名稱{% endblock %}
+{% block title %}HOME - 番茄館{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/index.css">
@@ -9,7 +9,7 @@
 
 {% block content %}
 <section class="intro">
-  <h1 class="restaurant-name">餐廳名稱</h1>
+  <h1 class="restaurant-name">番茄館</h1>
 </section>
 
 <section class="about-section">
@@ -47,102 +47,102 @@
 </section>
 
 <section class="stores-section">
-    <!-- 手機版 -->
-    <div class="vertical-text mobile">
-      <div class="line word-zh">據點</div>
-      <div class="line word-en">STORES</div>
-      <div class="line word-tagline">美味門市據點</div>
+  <!-- 手機版 -->
+  <div class="vertical-text mobile">
+    <div class="line word-zh">據點</div>
+    <div class="line word-en">STORES</div>
+    <div class="line word-tagline">美味門市據點</div>
+  </div>
+
+  <div class="text-center my-3 d-md-none">
+    <div class="custom-select-wrapper" style="position: relative; width: 60%; margin: 0 auto;">
+      <select id="regionFilter" class="custom-select" style="display: none;">
+        <option value="北部" selected>北部</option>
+        <option value="中部">中部</option>
+        <option value="南部">南部</option>
+      </select>
+      <div id="customDropdown" class="custom-dropdown"></div>
+    </div>
+  </div>
+
+  <!-- 電腦版 -->
+  <div class="vertical-text desktop">
+    <div class="line word-zh">據點</div>
+    <div class="line word-en">STORES</div>
+    <div class="line word-tagline">美味門市據點</div>
+  </div>
+
+  <!-- 垂直分隔線 -->
+  <div class="vertical-divider"></div>
+
+  <div class="stores-list">
+    <div class="store" data-region="北部">
+      <div class="store-name">新莊中正店</div>
+      <div class="store-address">地址：新北市新莊區中正路119號3樓</div>
+      <div class="store-hours">
+        時間：<br />
+        平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
+        假日（例假日）：上午11:00 - 下午10:30
+      </div>
+      <div class="store-phone">專線：(02) 1335-4598</div>
     </div>
 
-    <div class="text-center my-3 d-md-none">
-      <div class="custom-select-wrapper" style="position: relative; width: 60%; margin: 0 auto;">
-        <select id="regionFilter" class="custom-select" style="display: none;">
-          <option value="北部" selected>北部</option>
-          <option value="中部">中部</option>
-          <option value="南部">南部</option>
-        </select>
-        <div id="customDropdown" class="custom-dropdown"></div>
+    <div class="store" data-region="北部">
+      <div class="store-name">台北信義店</div>
+      <div class="store-address">地址：台北市信義區松高路88號</div>
+      <div class="store-hours">
+        時間：<br />
+        平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
+        假日（例假日）：上午11:00 - 下午10:30
       </div>
+      <div class="store-phone">專線：(02) 2789-1234</div>
     </div>
-  
-    <!-- 電腦版 -->
-    <div class="vertical-text desktop">
-      <div class="line word-zh">據點</div>
-      <div class="line word-en">STORES</div>
-      <div class="line word-tagline">美味門市據點</div>
+
+    <div class="store" data-region="北部">
+      <div class="store-name">板橋文化店</div>
+      <div class="store-address">地址：新北市板橋區文化路一段111號</div>
+      <div class="store-hours">
+        時間：<br />
+        平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
+        假日（例假日）：上午11:00 - 下午10:30
+      </div>
+      <div class="store-phone">專線：(02) 2222-3333</div>
     </div>
-    
-    <!-- 垂直分隔線 -->
-    <div class="vertical-divider"></div>
-    
-    <div class="stores-list">
-      <div class="store" data-region="北部">
-        <div class="store-name">新莊中正店</div>
-        <div class="store-address">地址：新北市新莊區中正路119號3樓</div>
-        <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
-        </div>
-        <div class="store-phone">專線：(02) 1335-4598</div>
+
+    <div class="store" data-region="北部">
+      <div class="store-name">中壢中正店</div>
+      <div class="store-address">地址：桃園市中壢區中正路23號</div>
+      <div class="store-hours">
+        時間：<br />
+        平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
+        假日（例假日）：上午11:00 - 下午10:30
       </div>
-  
-      <div class="store" data-region="北部">
-        <div class="store-name">台北信義店</div>
-        <div class="store-address">地址：台北市信義區松高路88號</div>
-        <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
-        </div>
-        <div class="store-phone">專線：(02) 2789-1234</div>
-      </div>
-  
-      <div class="store" data-region="北部">
-        <div class="store-name">板橋文化店</div>
-        <div class="store-address">地址：新北市板橋區文化路一段111號</div>
-        <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
-        </div>
-        <div class="store-phone">專線：(02) 2222-3333</div>
-      </div>
-  
-      <div class="store" data-region="北部">
-        <div class="store-name">中壢中正店</div>
-        <div class="store-address">地址：桃園市中壢區中正路23號</div>
-        <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
-        </div>
-        <div class="store-phone">專線：(03) 456-7890</div>
-      </div>
-  
-      <div class="store" data-region="中部">
-        <div class="store-name">台中公益店</div>
-        <div class="store-address">地址：台中市南屯區公益路二段50號</div>
-        <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
-        </div>
-        <div class="store-phone">專線：(04) 9876-5432</div>
-      </div>
-  
-      <div class="store" data-region="南部">
-        <div class="store-name">高雄漢神店</div>
-        <div class="store-address">地址：高雄市前金區成功一路266號</div>
-        <div class="store-hours">
-          時間：<br />
-          平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
-          假日（例假日）：上午11:00 - 下午10:30
-        </div>
-        <div class="store-phone">專線：(07) 6543-2100</div>
-      </div>
+      <div class="store-phone">專線：(03) 456-7890</div>
     </div>
-  </section>  
+
+    <div class="store" data-region="中部">
+      <div class="store-name">台中公益店</div>
+      <div class="store-address">地址：台中市南屯區公益路二段50號</div>
+      <div class="store-hours">
+        時間：<br />
+        平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
+        假日（例假日）：上午11:00 - 下午10:30
+      </div>
+      <div class="store-phone">專線：(04) 9876-5432</div>
+    </div>
+
+    <div class="store" data-region="南部">
+      <div class="store-name">高雄漢神店</div>
+      <div class="store-address">地址：高雄市前金區成功一路266號</div>
+      <div class="store-hours">
+        時間：<br />
+        平日：上午11:00 - 下午2:30 / 下午5:00 - 10:30<br />
+        假日（例假日）：上午11:00 - 下午10:30
+      </div>
+      <div class="store-phone">專線：(07) 6543-2100</div>
+    </div>
+  </div>
+</section>
 
 <section class="reserve-btn-section">
   <div class="reserve-btn-wrapper">
