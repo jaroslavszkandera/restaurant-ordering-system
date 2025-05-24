@@ -92,10 +92,10 @@
     background-color: #000 !important;
     border-radius: 0.5rem;
     padding: 0.2rem 0.6rem;
-    font-size: 1rem;
+    font-size: 0.7rem;
     font-weight: 500;
     display: inline-block;
-    border: 2px solid transparent;
+    border: 1.5px solid transparent;
     color: white ;
 }
 
@@ -118,4 +118,23 @@
 .status-badge.status-other {
     color: #17a2b8 !important;       
     border-color: #17a2b8 !important;
+}
+
+/* 讓標題區與 auth-container 左右對齊 */
+.order-page-wrapper {
+  max-width: 500px;
+  margin: 8rem auto 0 auto; 
+  padding: 0 1rem;
+}
+
+/* 標題列間距修正 */
+.order-details-heading {
+  font-size: 2rem;
+  color: white;
+}
+
+/* 調整 auth-container 使其與標題寬度一致 */
+.auth-container {
+  width: 100%;
+  box-sizing: border-box;
 }

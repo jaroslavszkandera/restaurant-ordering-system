@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
+{% load tz %}
+
 {% block title %}ORDER CONFIRMED - Our restaurant{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/form.css">
-<link rel="stylesheet" href="/static/css/sheet.css">
+<link rel="stylesheet" href="/static/css/table.css">
 <link rel="stylesheet" href="/static/css/confirmation.css">
 {% endblock %}
 
@@ -26,7 +28,7 @@
           </div>
           <div class="card-body text-start" style="color: white;">
             <p><strong>Order ID:</strong> {{ order.id }}</p>
-            <p><strong>Date Placed:</strong> {{ order.created_at|date:"F d, Y, P" }}</p>
+            <p><strong>Date Placed:</strong> {{ order.created_at|localtime|date:"F d, Y, P" }}</p>
             <p>
               <strong>Status:</strong>
               <span class="status-badge 
@@ -73,7 +75,7 @@
       </div>
     </div>
 
-    <div class="mt-5 d-flex justify-content-center align-items-center gap-3 flex-wrap">
+    <div class="mt-5 d-flex {% if not user.is_authenticated %}justify-content-center{% else %}justify-content-center align-items-center gap-3 flex-wrap{% endif %}">
       <a href="{% url 'menu' %}" class="edit-cart-btn" style="text-decoration: none;">
         <i class="fas fa-utensils me-2"></i>Continue Shopping
       </a>

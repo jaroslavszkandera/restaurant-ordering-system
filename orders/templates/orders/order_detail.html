@@ -4,12 +4,11 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/form.css">
-<link rel="stylesheet" href="/static/css/sheet.css">
 <link rel="stylesheet" href="/static/css/table.css">
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5 pt-5">
+<div class="order-page-wrapper">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0 order-details-heading">Order Details</h1>
     <a href="{% url 'order_history' %}" class="btn edit-cart-btn">

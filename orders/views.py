@@ -5,6 +5,8 @@ from django.contrib.auth import login
 from django.http import JsonResponse
 from django.db import transaction
 from django.db.models import F
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 from .models import Category, MenuItem, Customer, Cart, CartItem, Order, OrderItem
 from .forms import (
@@ -157,7 +159,6 @@ def add_to_cart(request):
     messages.error(request, "Invalid request.")
     return redirect("menu")
 
-
 def view_cart(request):
     """View and update cart."""
     cart = get_or_create_cart(request)
@@ -259,6 +260,12 @@ def checkout(request):
                 )
 
             cart.items.all().delete()
+
+            # Allow guest access to order confirmation page
+            guest_order_ids = request.session.get("guest_order_ids", [])
+            guest_order_ids.append(order.id)
+            request.session["guest_order_ids"] = guest_order_ids          
+            
             if (
                 cart.session_id and not cart.customer
             ):  # If it was a session-only cart, can delete it.
@@ -292,28 +299,26 @@ def order_confirmation(request, order_id):
     """Order confirmation page."""
     order = get_object_or_404(Order.objects.select_related("customer"), id=order_id)
 
-    # Security check
     can_view = False
+
+    # 1. 登入使用者可看自己下的訂單
     if request.user.is_authenticated and hasattr(request.user, "customer"):
         if order.customer == request.user.customer:
             can_view = True
-    # Add logic here if guest orders can be viewed via a session key or unique token
-    # For now, only authenticated owners can view.
 
+    # 2. 未登入使用者，可從 session 確認剛剛建立的 order_id
     if not can_view:
-        # Check if order was placed in current session for a guest (more complex, needs session tracking for order_id)
-        # For simplicity, current check:
-        if not (
-            request.user.is_authenticated
-            and hasattr(request.user, "customer")
-            and order.customer == request.user.customer
-        ):
-            messages.error(
-                request, "You don't have permission to view this order confirmation."
-            )
-            return redirect("index")
+        guest_order_ids = request.session.get("guest_order_ids", [])
+        if order.id in guest_order_ids:
+            can_view = True
+
+    # 3. 拒絕非授權存取
+    if not can_view:
+        messages.error(request, "You don't have permission to view this order confirmation.")
+        return redirect("index")
 
     return render(request, "orders/order_confirmation.html", {"order": order})
+
 
 
 @login_required
@@ -421,3 +426,7 @@ def register(request):
         "registration/register.html",
         {"user_form": user_form, "customer_form": customer_form},
     )
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')

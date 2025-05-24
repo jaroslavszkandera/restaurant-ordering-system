@@ -8,11 +8,10 @@ h1.mb-4 {
 .list-group-item {
   margin-bottom: 2rem !important;
   padding: 1rem 1.25rem;
-  background-color: #000 !important;
+  background-color: #252525 !important;
   color: #fff !important;
   border: 1px solid white !important;
 }
-
 
 /* 讓第一筆訂單距離標題遠一點 */
 .list-group .list-group-item:first-child {
@@ -20,12 +19,32 @@ h1.mb-4 {
 }
 
 a.list-group-item {
-    background-color: black !important;
     color: white;
 }
 
 a.list-group-item:hover {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
     border: 1.5px solid white;
+    background-color: #333 !important;
     color: white;
+}
+
+.container .text-muted,
+.list-group-item .text-muted {
+  color: #b7b6b6 !important;
+}
+
+@media (min-width: 768px) {
+  .list-group {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+.status-badge {
+  background-color: #252525 !important;
+}
+
+a.list-group-item:hover .status-badge {
+  background-color: #333 !important;
 }
