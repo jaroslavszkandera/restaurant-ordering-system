@@ -12,7 +12,11 @@ urlpatterns = [
     # Cart and checkout
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
     path("cart/", views.view_cart, name="view_cart"),
-    path('cart/update_and_checkout/', views.update_cart_and_checkout, name='update_cart_and_checkout'),
+    path(
+        "cart/update_and_checkout/",
+        views.update_cart_and_checkout,
+        name="update_cart_and_checkout",
+    ),
     path("checkout/", views.checkout, name="checkout"),
     # Orders
     path("order/<int:order_id>/", views.order_detail, name="order_detail"),
@@ -24,6 +28,10 @@ urlpatterns = [
     path("orders/history/", views.order_history, name="order_history"),
     # Authentication
     path("register/", views.register, name="register"),
-    path("login/", auth_views.LoginView.as_view(), name="login"),
+    path(
+        "login/",
+        auth_views.LoginView.as_view(),
+        name="login",
+    ),
     path("logout/", auth_views.LogoutView.as_view(next_page="index"), name="logout"),
 ]

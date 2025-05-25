@@ -5,14 +5,19 @@ from .models import Customer, Order, MenuItem
 
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField()
+    email = forms.EmailField(
+        required=True, help_text="Required. Will be used for communication."
+    )
+    first_name = forms.CharField(max_length=30, required=False, help_text="Optional.")
+    last_name = forms.CharField(max_length=150, required=False, help_text="Optional.")
 
-    # FIX:
-    # "Meta" overrides symbol of same name in class "BaseUserCreationForm"
-    #  "orders.forms.UserRegistrationForm.Meta" is not assignable to "django.contrib.auth.forms.BaseUserCreationForm.Meta"
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = User
-        fields = ["username", "email", "password", "password2"]
+        fields = UserCreationForm.Meta.fields + (
+            "first_name",
+            "last_name",
+            "email",
+        )
 
 
 class CustomerForm(forms.ModelForm):

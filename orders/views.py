@@ -373,22 +373,17 @@ def order_history(request):
 
 @transaction.atomic
 def register(request):
-    """User registration view."""
     if request.user.is_authenticated:
         return redirect("index")
 
     if request.method == "POST":
         user_form = UserRegistrationForm(request.POST)
-        customer_form = CustomerForm(request.POST)
-
-        if user_form.is_valid() and customer_form.is_valid():
+        if user_form.is_valid():
             user = user_form.save()
 
-            customer = customer_form.save(commit=False)
-            customer.user = user
-            customer.save()
+            customer = get_or_create_customer_for_user(user)
 
-            login(request, user)
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
             session_id = request.session.get("cart_session_id")
             if session_id:
@@ -397,7 +392,6 @@ def register(request):
                         session_id=session_id, customer__isnull=True
                     )
                     user_cart, _ = Cart.objects.get_or_create(customer=customer)
-
                     for item in session_cart.items.all():
                         user_cart_item, created = CartItem.objects.get_or_create(
                             cart=user_cart,
@@ -406,25 +400,25 @@ def register(request):
                         )
                         if not created:
                             user_cart_item.quantity = F("quantity") + item.quantity
-                            user_cart_item.save()
-
+                            user_cart_item.save(update_fields=["quantity"])
                     session_cart.delete()
                     request.session.pop("cart_session_id", None)
                 except Cart.DoesNotExist:
-                    pass
+                    pass  # No guest cart to merge
 
-            messages.success(request, "Registration successful! Welcome.")
-            return redirect("index")
+            messages.success(
+                request, f"Registration successful! Welcome, {user.username}."
+            )
+            return redirect("index")  # Or LOGIN_REDIRECT_URL
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         user_form = UserRegistrationForm()
-        customer_form = CustomerForm()
 
     return render(
         request,
         "registration/register.html",
-        {"user_form": user_form, "customer_form": customer_form},
+        {"user_form": user_form},
     )
 
 

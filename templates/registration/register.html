@@ -1,20 +1,28 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Register - 番茄館{% endblock %}
 
+{% block extra_css %}
+<!-- TODO: <link rel="stylesheet" href="{% static 'css/register.css' %}"> -->
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-      <div class="card">
-        <div class="card-header bg-success text-white">
-          <h3 class="mb-0">Create Your Account</h3>
+      <div class="card"
+        style="background-color: black; border: 1.5px solid white; border-radius: 1rem; box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);">
+        <div class="card-header" style="background-color: black; color:white; border-bottom: 1px solid #444;">
+          <h3 class="mb-0 text-center">Create Your Account</h3>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="color:white;">
           {% if messages %}
           {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          <div
+            class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}danger{% endif %} alert-dismissible fade show"
+            role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
@@ -23,24 +31,16 @@
 
           <form method="post">
             {% csrf_token %}
-
-            <fieldset class="mb-4">
-              <legend class="h5">User Account Details</legend>
-              {{ user_form|crispy }}
-            </fieldset>
-
-            <!-- <fieldset class="mb-4"> -->
-            <!--   <legend class="h5">Your Details</legend> -->
-            <!--   {{ customer_form|crispy }} -->
-            <!-- </fieldset> -->
-
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-success btn-lg">Register</button>
+            {{ user_form|crispy }}
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-lg custom-login-btn"
+                style="background-color: yellow !important; color: black !important; border-color: yellow !important;">Register</button>
             </div>
           </form>
         </div>
-        <div class="card-footer text-center">
-          <p class="mb-0">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        <div class="card-footer text-center" style="background-color: #0a0a0a; border-top: 1px solid #444;">
+          <p class="mb-0" style="color:#ccc;">Already have an account? <a href="{% url 'login' %}"
+              class="text-white text-decoration-underline">Login here</a></p>
         </div>
       </div>
     </div>
