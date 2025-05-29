@@ -484,6 +484,7 @@ border: 2px solid yellow;
 border-radius: 9999px;
 color: black;
 font-size: 1rem;
+font-weight: bold;
 text-decoration: none;
 display: inline-block;
 }

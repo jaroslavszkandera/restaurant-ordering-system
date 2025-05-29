@@ -9,8 +9,9 @@
 
 {% block content %}
 <main class="container d-flex flex-column align-items-center justify-content-start" style="margin-top: 150px;">
-  <div class="p-4" style="border: 1.5px solid white; max-width: 500px; width: 100%; border-radius: 1rem; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);">
-    <h1 class="mb-4 text-center">Create Your Account</h1>
+  <div class="p-4" style="border: 1.5px solid white; max-width: 500px; width: 100%; border-radius: 1rem; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); background-color: transparent;">
+    
+    <h1 class="mb-4 text-center text-white">Create Your Account</h1>
 
     {% if messages %}
       {% for message in messages %}
@@ -25,28 +26,19 @@
       {% csrf_token %}
       
       <fieldset class="mb-4">
-        <legend class="h5">User Account Details</legend>
+        <legend class="h5 text-white">User Account Details</legend>
         {{ user_form|crispy }}
       </fieldset>
-
-      {# 額外欄位暫時停用 #}
-      <!-- 
-      <fieldset class="mb-4">
-        <legend class="h5">Your Details</legend>
-        {{ customer_form|crispy }}
-      </fieldset>
-      -->
 
       <button type="submit" class="btn w-100 custom-login-btn">
         Register
       </button>
     </form>
 
-    <p class="mt-4 text-center">
+    <p class="mt-4 text-center text-white">
       Already have an account?
       <a href="{% url 'login' %}" class="text-white text-decoration-underline">Login here</a>
     </p>
   </div>
 </main>
 {% endblock %}
-

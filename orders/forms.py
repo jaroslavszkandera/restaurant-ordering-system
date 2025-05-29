@@ -2,14 +2,23 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Customer, Order, MenuItem
-
+import re
+from .models import Reservation
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField()
+    email = forms.EmailField(
+        required=True, help_text="Required. Will be used for communication."
+    )
+    first_name = forms.CharField(max_length=30, required=False, help_text="Optional.")
+    last_name = forms.CharField(max_length=150, required=False, help_text="Optional.")
 
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = User
-        fields = ["username", "email", "password1", "password2"]
+        fields = UserCreationForm.Meta.fields + (
+            "first_name",
+            "last_name",
+            "email",
+        )
 
 
 class CustomerForm(forms.ModelForm):
@@ -38,6 +47,20 @@ class CartUpdateForm(forms.Form):
 
 
 class CheckoutForm(forms.ModelForm):
+    name = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Full Name"}),
+    )
+    email = forms.EmailField(
+        required=False, widget=forms.EmailInput(attrs={"placeholder": "Email Address"})
+    )
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Phone Number"}),
+    )
+
     class Meta:
         model = Order
         fields = ["special_instructions"]
@@ -47,26 +70,62 @@ class CheckoutForm(forms.ModelForm):
             ),
         }
 
-    # If guest checkout
-    name = forms.CharField(max_length=100, required=False)
-    phone = forms.CharField(max_length=20, required=False)
-    email = forms.EmailField(required=False)
-
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user", None)
+        self.user = kwargs.pop("user", None)  # User passed from the view
         super().__init__(*args, **kwargs)
 
-        # If user is authenticated, pre-fill customer information
-        if user and not user.is_anonymous:
-            try:
-                customer = user.customer
+        if self.user and self.user.is_authenticated:
+            customer = getattr(self.user, "customer", None)
+            if customer:
                 self.fields["name"].initial = customer.name
-                self.fields["phone"].initial = customer.phone
                 self.fields["email"].initial = customer.email
+                self.fields["phone"].initial = customer.phone
+            else:  # admin
+                self.fields["name"].initial = (
+                    self.user.get_full_name() or self.user.username
+                )
+                self.fields["email"].initial = self.user.email
+            # optional fields with authenticated users?
+            # self.fields["name"].required = False
+            # self.fields["email"].required = False
+            # self.fields["phone"].required = False
+        else:  # guest users
+            self.fields["name"].required = True
+            self.fields["email"].required = True
+            self.fields["phone"].required = True
 
-                # Hide these fields if we already have customer data
-                self.fields["name"].widget = forms.HiddenInput()
-                self.fields["phone"].widget = forms.HiddenInput()
-                self.fields["email"].widget = forms.HiddenInput()
-            except:
-                pass
+    def clean(self):
+        cleaned_data = super().clean()
+        if not (self.user and self.user.is_authenticated):
+            if not cleaned_data.get("name"):
+                self.add_error("name", "This field is required for guest checkout.")
+            if not cleaned_data.get("email"):
+                self.add_error("email", "This field is required for guest checkout.")
+            if not cleaned_data.get("phone"):
+                self.add_error("phone", "This field is required for guest checkout.")
+        return cleaned_data
+
+class ContactForm(forms.Form):
+    name = forms.CharField(min_length=2, required=True, error_messages={'required': 'Please enter your name.', 'min_length': 'Name must be at least 2 characters.'})
+    email = forms.EmailField(required=True, error_messages={'required': 'Please enter your email.', 'invalid': 'Enter a valid email address.'})
+    phone = forms.CharField(required=False, max_length=10, min_length=10, error_messages={'min_length': 'Phone number must be exactly 10 digits.', 'max_length': 'Phone number must be exactly 10 digits.'})
+    mobile = forms.CharField(required=True, max_length=10, min_length=10, error_messages={'required': 'Please enter your mobile number.', 'min_length': 'Mobile number must be exactly 10 digits.', 'max_length': 'Mobile number must be exactly 10 digits.'})
+    message = forms.CharField(widget=forms.Textarea, min_length=10, required=True, error_messages={'required': 'Please enter your message.', 'min_length': 'Message must be at least 10 characters.'})
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone', '')
+        if phone and not re.match(r'^[0-9]{10}$', phone):
+            raise forms.ValidationError('Phone number must be exactly 10 digits.')
+        return phone
+
+    def clean_mobile(self):
+        mobile = self.cleaned_data.get('mobile', '')
+        if not re.match(r'^[0-9]{10}$', mobile):
+            raise forms.ValidationError('Mobile number must be exactly 10 digits.')
+        return mobile
+    
+
+class ReservationForm(forms.ModelForm):
+    class Meta:
+        model = Reservation
+        fields = ['guests', 'date', 'branch', 'time_slot', 'name', 'mobile']

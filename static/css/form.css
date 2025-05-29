@@ -138,3 +138,33 @@
   width: 100%;
   box-sizing: border-box;
 }
+
+/* 防止 Chrome autofill 變藍底 */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 
+    inset 0 0 25px black,          
+    0 0 0px 1000px #333 inset !important;  
+  box-shadow: 
+    inset 0 0 25px black,
+    0 0 0px 1000px #333 inset !important;
+}
+
+/* 針對 focus, hover, active 狀態同樣覆蓋 */
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus,
+input:-webkit-autofill:hover,
+textarea:-webkit-autofill:hover,
+select:-webkit-autofill:hover {
+  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 
+    inset 0 0 25px black,
+    0 0 0px 1000px #333 inset !important;
+  box-shadow: 
+    inset 0 0 25px black,
+    0 0 0px 1000px #333 inset !important;
+}
+

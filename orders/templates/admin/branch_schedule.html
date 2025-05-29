@@ -1,0 +1,68 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Reservation Summary</h1>
+
+<form method="get">
+  <label>Branch:
+    <select name="branch">
+      <option value="all" {% if not selected_branch %}selected{% endif %}>-- All Branches --</option>
+      {% for b in branches %}
+        <option value="{{ b.id }}" {% if selected_branch and selected_branch.id == b.id %}selected{% endif %}>{{ b.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Range:
+    <select name="range">
+      <option value="future_all" {% if range == 'future_all' %}selected{% endif %}>Future All</option>
+      <option value="next_week" {% if range == 'next_week' %}selected{% endif %}>Next Week</option>
+      <option value="today" {% if range == 'today' %}selected{% endif %}>Today</option>
+      <option value="past_week" {% if range == 'past_week' %}selected{% endif %}>Past Week</option>
+      <option value="past_year" {% if range == 'past_year' %}selected{% endif %}>Past Year</option>
+      <option value="all" {% if range == 'all' %}selected{% endif %}>All</option>
+    </select>
+  </label>
+
+  <label>Time Slot:
+    <select name="time_slot">
+      <option value="all" {% if time_slot_filter == 'all' %}selected{% endif %}>All</option>
+      {% for slot in time_slots %}
+        <option value="{{ slot|time:"H:i" }}" {% if time_slot_filter == slot|time:"H:i" %}selected{% endif %}>{{ slot|time:"H:i" }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="submit">Filter</button>
+</form>
+
+{% if selected_branch or not selected_branch %}
+  <p><strong>Total Reservations:</strong> {{ total_reservations }}</p>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time Slot</th>
+        <th>Guests</th>
+        <th>Name</th>
+        <th>Mobile</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reservations %}
+        <tr>
+          <td>{{ r.date }}</td>
+          <td>{{ r.time_slot|time:"H:i" }}</td>
+          <td>{{ r.guests }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.mobile }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>Please select a branch to view summary.</p>
+{% endif %}
+{% endblock %}

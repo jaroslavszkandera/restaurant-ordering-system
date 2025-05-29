@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/form.css">
+{% endblock %}
+
+{% block content %}
+<main class="container d-flex flex-column align-items-center justify-content-start" style="margin-top: 100px;">
+  <div class="auth-container">
+
+    <h1 class="mb-4 text-center">Contact</h1>
+    <hr style="width: 90%; border-top: 1px solid white ; margin: 0 auto 1rem auto;" />
+    
+    <form method="post" class="w-100" novalidate>
+      {% csrf_token %}
+
+      <div class="text-white text-start small mb-3">
+        <div>If you have any questions or requests, feel free to contact us</div>
+        <div>We will get back to you as soon as possible</div>
+      </div>
+
+      {% if form.errors and request.method == 'POST' %}
+        <div class="text-danger mb-3" style="font-size: 0.75rem;">Kindly review the details you’ve entered.</div>
+      {% endif %}
+
+      <!-- Name Field -->
+      <label for="id_name" class="form-label mb-1">Name <span class="text-white">*</span></label>
+      <input type="text" id="id_name" name="name" class="form-control mb-1" required pattern=".{2,}" value="{{ form.name.value|default_if_none:'' }}">
+      {% if form.name.errors and request.method == 'POST' %}
+        <small class="text-danger d-block" style="font-size: 0.75rem;">{{ form.name.errors.0 }}</small>
+      {% endif %}
+      <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">Please enter your full name.</small>
+
+      <!-- Email Field -->
+      <label for="id_email" class="form-label mb-1">Email <span class="text-white">*</span></label>
+      <input type="email" id="id_email" name="email" class="form-control mb-1" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+" value="{{ form.email.value|default_if_none:'' }}">
+      {% if form.email.errors and request.method == 'POST' %}
+        <small class="text-danger d-block" style="font-size: 0.75rem;">{{ form.email.errors.0 }}</small>
+      {% endif %}
+      <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">Enter a valid email address including '@' and domain (e.g., user@example.com).</small>
+
+      <!-- Phone Field -->
+      <label for="id_phone" class="form-label mb-1">Phone</label>
+      <input type="tel" id="id_phone" name="phone" class="form-control mb-1" pattern="[0-9]{10}" value="{{ form.phone.value|default_if_none:'' }}">
+      {% if form.phone.errors and request.method == 'POST' %}
+        <small class="text-danger d-block" style="font-size: 0.75rem;">{{ form.phone.errors.0 }}</small>
+      {% endif %}
+      <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">e.g., 0411223333.</small>
+
+      <!-- Mobile Field -->
+      <label for="id_mobile" class="form-label mb-1">Mobile Phone <span class="text-white">*</span></label>
+      <input type="tel" id="id_mobile" name="mobile" class="form-control mb-1" required pattern="[0-9]{10}" value="{{ form.mobile.value|default_if_none:'' }}">
+      {% if form.mobile.errors and request.method == 'POST' %}
+        <small class="text-danger d-block" style="font-size: 0.75rem;">{{ form.mobile.errors.0 }}</small>
+      {% endif %}
+      <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">e.g., 0911222333.</small>
+
+      <!-- Message Field -->
+      <label for="id_message" class="form-label mb-1">Request Details <span class="text-white">*</span></label>
+      <textarea id="id_message" name="message" rows="5" class="form-control mb-1" required minlength="10">{{ form.message.value|default_if_none:'' }}</textarea>
+      {% if form.message.errors and request.method == 'POST' %}
+        <small class="text-danger d-block" style="font-size: 0.75rem;">{{ form.message.errors.0 }}</small>
+      {% endif %}
+      <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">Please describe your inquiry in at least 10 characters.</small>
+
+      <button type="submit" class="btn w-100 custom-login-btn">Submit</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

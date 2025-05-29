@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Reservation Confirmation - Our Restaurant{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/form.css">
+<link rel="stylesheet" href="/static/css/table.css">
+<style>
+  /* 確保地圖不會超出容器寬度 */
+  .map-container iframe {
+    margin-bottom: 10px;
+    width: 100%;
+    height: 300px;
+    border: none;
+  }
+
+  .divider {
+    width: 90%;
+    margin: 1rem auto;
+    border-bottom: 1px solid #444;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-page-wrapper">
+  <h1 class="auth-title order-details-heading">Reservation Confirmed</h1>
+  <div class="auth-container">
+    <p><strong>Name:</strong> {{ reservation.gender }} {{ reservation.name }}</p>
+    <p><strong>Phone:</strong> {{ reservation.mobile }}</p>
+    <p><strong>Date:</strong> {{ reservation.date }}</p>
+    <p><strong>Time:</strong> 
+      {# 判斷是否為中午12點 #}
+      {% if reservation.time_slot|stringformat:"H:i" == "12:00" %}
+        12:00
+      {% else %}
+        {{ reservation.time_slot }}
+      {% endif %}
+    <p><strong>Guests:</strong> {{ reservation.guests }} guests</p>
+    <div class="divider"></div>
+    <p><strong>Branch:</strong> {{ reservation.branch.name }}</p>
+    <p><strong>Address:</strong> {{ reservation.branch.address }}</p>
+    <p><strong>Branch Phone:</strong> {{ reservation.branch.phone }}</p>
+    
+    <!-- Google Map iframe -->
+    <div class="divider"></div>
+    <div class="map-container">
+      {{ reservation.branch.map_embed_html|safe }}
+    </div>
+
+    <!-- 確認按鈕 -->
+    <div class="text-center">
+      <a href="{% url 'index' %}" class="btn custom-login-btn">Confirm !</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,7 +1,10 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.urls import  include
+from django.contrib import admin
 from . import views
 from .views import logout_view
+from .views import branch_schedule
 
 urlpatterns = [
     # Main pages
@@ -24,4 +27,9 @@ urlpatterns = [
     path("register/", views.register, name="register"),
     path("login/", auth_views.LoginView.as_view(), name="login"),
     path("logout/", logout_view, name="logout"),
+    path('contact/', views.contact_view, name='contact'),
+    path('reservation/', views.reservation, name='reservation'),
+    path('reservation/confirmation/<int:id>/', views.reservation_confirmation, name='reservation_confirmation'),
+    path('api/fetch_time_slots/', views.fetch_available_time_slots, name='fetch_time_slots'),
+    path('branch_schedule/', branch_schedule, name='branch_schedule'),
 ]
