@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.html import format_html
 from django.urls import reverse
 
+
 from .models import Category, MenuItem, Customer, Order, OrderItem, Cart, CartItem
 
 
@@ -93,7 +94,7 @@ class OrderItemInline(admin.TabularInline):
 
     def menu_item_link(self, obj):
         if obj.menu_item:
-            link = reverse("admin:orders", args=[obj.menu_item.id])
+            link = reverse("admin:orders_menuitem_change", args=[obj.menu_item.id])
             return format_html('<a href="{}">{}</a>', link, obj.menu_item.name)
         return "N/A"
 
@@ -114,6 +115,7 @@ class OrderAdmin(admin.ModelAdmin):
         "created_at",
         "total_price_display",
     )
+    list_editable = ("status",)
     list_filter = (
         "status",
         "created_at",
@@ -152,7 +154,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def customer_link_display(self, obj):
         if obj.customer:
-            link = reverse("admin:orders", args=[obj.customer.id])
+            link = reverse("admin:orders_customer_change", args=[obj.customer.id])
             return format_html('<a href="{}">{}</a>', link, obj.customer.name)
         return "N/A"
 
@@ -182,7 +184,6 @@ class OrderAdmin(admin.ModelAdmin):
             .select_related("customer", "customer__user")
             .prefetch_related("items__menu_item")
         )
-
 
 # For debugging: Register Cart and CartItem
 @admin.register(Cart)

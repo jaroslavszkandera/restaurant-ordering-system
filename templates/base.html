@@ -26,28 +26,40 @@
     <a href="{% url 'index' %}" class="logo">番茄館</a>
 
     <!-- 桌機版 -->
-    <nav class="d-none d-md-flex nav-links">
-      <a href="{% url 'index' %}">HOME</a>
-      <!-- TODO: about and contact sections -->
-      <!-- <a href="{% url 'about' %}">ABOUT</a> -->
-      <!-- <a href="{% url 'contact' %}">CONTACT</a> -->
-      {% if user.is_authenticated %}
-      <form id="logout-form" method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="nav-link">
-          <i class=""></i>LOGOUT
-        </button>
-      </form>
-      {% else %}
-      <a class="nav-link" href="{% url 'login' %}">LOGIN</a>
-      <a class="nav-link" href="{% url 'register' %}">REGISTER</a>
-      {% endif %}
-      <a class="nav-link" href="{% url 'view_cart' %}">
-        <i class="fas fa-shopping-cart"></i> Cart
-        <span class="badge bg-danger rounded-pill cart-count">
-          {{ global_cart_item_count|default:0 }}
-        </span>
-      </a>
+    <nav class="d-none d-md-flex nav-links justify-content-between align-items-center">
+      <!-- 左側: HOME 和 CART -->
+      <div class="nav-left">
+        <a href="{% url 'index' %}">HOME</a>
+      </div>
+
+      <div>
+        <a class="nav-link" href="{% url 'view_cart' %}">
+          <i class="fas fa-shopping-cart"></i> Cart
+          <span class="badge bg-danger rounded-pill cart-count">
+            {{ global_cart_item_count|default:0 }}
+          </span>
+        </a>
+      </div>
+
+      <!-- 右側: 登入、註冊 或 登出 -->
+      <div class="nav-right d-flex align-items-center">
+        {% if user.is_authenticated %}
+        <a href="{% url 'order_history' %}">
+          <i class="fas fa-history"></i>View Order History
+        </a>
+
+        <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-link nav-link" style="cursor: pointer;">
+            <i class="fas fa-sign-out-alt"></i> LOGOUT
+          </button>
+        </form>
+        {% else %}
+        <a class="nav-link" href="{% url 'login' %}">LOGIN</a>
+        <a class="nav-link" href="{% url 'register' %}">REGISTER</a>
+        {% endif %}
+      </div>
+
     </nav>
 
     <a href="{% url 'menu' %}" class="order-btn d-none d-md-block">Order Now ⭢</a>

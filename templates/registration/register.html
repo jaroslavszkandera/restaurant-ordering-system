@@ -5,7 +5,6 @@
 {% block title %}Register - 番茄館{% endblock %}
 
 {% block extra_css %}
-<!-- TODO: <link rel="stylesheet" href="{% static 'css/register.css' %}"> -->
 {% endblock %}
 
 {% block content %}
@@ -13,11 +12,15 @@
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
       <div class="card"
-        style="background-color: black; border: 1.5px solid white; border-radius: 1rem; box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);">
+        style="background-color: rgb(255, 255, 255); border: 1.5px solid rgb(0, 0, 0); border-radius: 1rem; box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);">
+        
+        <!-- Header: 黑底白字 -->
         <div class="card-header" style="background-color: black; color:white; border-bottom: 1px solid #444;">
           <h3 class="mb-0 text-center">Create Your Account</h3>
         </div>
-        <div class="card-body" style="color:white;">
+
+        <!-- Body: 白底黑字 -->
+        <div class="card-body" style="background-color: white; color: black; border-top: 1px solid #eee;">
           {% if messages %}
           {% for message in messages %}
           <div
@@ -37,11 +40,12 @@
                 style="background-color: yellow !important; color: black !important; border-color: yellow !important;">Register</button>
             </div>
           </form>
+          <div class="card-footer text-center" style="background-color: #ffffff; border-top: 1px solid #444;">
+          <p class="mb-0" style="color:#000000;">Already have an account? <a href="{% url 'login' %}"
+              class="text-black text-decoration-underline">Login here</a></p>
+          </div>
         </div>
-        <div class="card-footer text-center" style="background-color: #0a0a0a; border-top: 1px solid #444;">
-          <p class="mb-0" style="color:#ccc;">Already have an account? <a href="{% url 'login' %}"
-              class="text-white text-decoration-underline">Login here</a></p>
-        </div>
+        
       </div>
     </div>
   </div>
