@@ -138,6 +138,66 @@ $(document).ready(function () {
 
   });
 
+  $('#random-dish-btn').on('click', function () {
+    // console.log("Random dish button clicked!");
+
+    let $button = $(this);
+    let originalHtml = $button.html();
+    $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Picking...');
+
+    $.ajax({
+      type: 'POST',
+      url: ADD_RANDOM_TO_CART_URL,
+      headers: {'X-CSRFToken': CSRF_TOKEN},
+      success: function (data) {
+        if (data.status === 'success') {
+          Swal.fire({
+            toast: true,
+            icon: 'success',
+            title: 'Surprise!',
+            html: `${data.added_item_name || 'Random dish'} added to your cart!`,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+          if (data.cart_total_quantity !== undefined) {
+            $('.cart-count').text(data.cart_total_quantity);
+          }
+        } else {
+          Swal.fire({
+            toast: true,
+            icon: 'error',
+            title: 'Oops!',
+            html: data.message || 'Could not add random dish.',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+        }
+      },
+      error: function (xhr) {
+        let errorMessage = 'Something went wrong. Please try again.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMessage = xhr.responseJSON.message;
+        } else if (xhr.status === 404) {
+          errorMessage = 'No items available to choose from right now.';
+        }
+        Swal.fire({
+          toast: true,
+          icon: 'error',
+          title: 'Oops...',
+          text: errorMessage,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3500
+        });
+      },
+      complete: function () {
+        $button.prop('disabled', false).html(originalHtml);
+      }
+    });
+  });
+
   // Floating category menu toggle
   $('#floating-menu-btn').on('click', function () {
     $('#floating-category-menu').toggleClass('show');
@@ -155,13 +215,13 @@ $(document).on('click', function (event) {
   const $toggleBtn = $('#floating-menu-btn');
   // 如果點擊的不是選單本身、也不是 toggle 按鈕，則關閉
   if (!$menu.is(event.target) && $menu.has(event.target).length === 0 &&
-      !$toggleBtn.is(event.target) && $toggleBtn.has(event.target).length === 0) {
+    !$toggleBtn.is(event.target) && $toggleBtn.has(event.target).length === 0) {
     $menu.removeClass('show');
   }
 });
 
 // Scroll functionality
-window.scrollCategories = function(direction) {
+window.scrollCategories = function (direction) {
   const wrapper = document.querySelector('.category-list-wrapper');
   const list = document.querySelector('.category-list');
   const btns = list ? list.querySelectorAll('.category-btn') : [];
@@ -169,7 +229,7 @@ window.scrollCategories = function(direction) {
   const rightBtn = document.querySelector('.scroll-btn.right');
 
   if (!wrapper || !list || btns.length === 0) {
-    console.error('Missing elements:', { wrapper, list, btnCount: btns.length });
+    console.error('Missing elements:', {wrapper, list, btnCount: btns.length});
     return;
   }
 
@@ -227,7 +287,7 @@ function fitTextToWidth(el) {
     el.style.lineHeight = `${lineHeight}`;
   }
 
-  return { fontSize };
+  return {fontSize};
 }
 
 // Adjust card content (font size, lines, and image dimensions)
@@ -243,7 +303,7 @@ function adjustCardContent() {
     if (!title || !img) return;
 
     // Apply font scaling
-    const { fontSize } = fitTextToWidth(title);
+    const {fontSize} = fitTextToWidth(title);
 
     // 計算剩餘空間給圖片
     const cardLeftHeight = cardLeft.clientHeight;

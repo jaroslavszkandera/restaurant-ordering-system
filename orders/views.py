@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.db import transaction
 from django.db.models import F
 from django.views.decorators.http import require_POST
+import random
 
 from .models import Category, MenuItem, Customer, Cart, CartItem, Order, OrderItem
 from .forms import (
@@ -72,9 +73,9 @@ def get_or_create_cart(request):
 def index(request):
     """Home page showing featured menu items and categories."""
     categories = Category.objects.all()
-    featured_items = MenuItem.objects.filter(available=True).order_by("?")[
-        :6
-    ]  # TODO(JS): Define featured flag, now randomly pick some.
+    featured_items = MenuItem.objects.filter(available=True, is_featured=True).order_by(
+        "?"
+    )[:6]
 
     return render(
         request,
@@ -83,24 +84,31 @@ def index(request):
     )
 
 
-def menu(request, category_id=None):
+def menu(request, category_id=None, show_featured=False):
     """Display menu items, optionally filtered by category."""
     categories = Category.objects.all()
     menu_items = MenuItem.objects.filter(available=True)
+    category_obj = None
+    active_filter = "all"
 
     if category_id:
-        category = get_object_or_404(Category, id=category_id)
-        menu_items = menu_items.filter(category=category)
-    else:
-        category = None
+        category_obj = get_object_or_404(Category, id=category_id)
+        menu_items = menu_items.filter(category=category_obj)
+        active_filter = category_obj.id
+    elif show_featured:
+        menu_items = menu_items.filter(is_featured=True)
+        active_filter = "featured"
+    # Else, it's "all" items
 
     return render(
         request,
         "orders/menu.html",
         {
             "categories": categories,
-            "category": category,
+            "category": category_obj,
             "menu_items": menu_items,
+            "active_filter": active_filter,
+            "show_featured_active": show_featured,
         },
     )
 
@@ -143,14 +151,66 @@ def add_to_cart(request):
             return redirect(request.POST.get("next", "menu"))
         else:
             if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                error_messages = []
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        error_messages.append(f"{field.capitalize()}: {error}")
                 return JsonResponse(
-                    {"status": "error", "errors": form.errors}, status=400
+                    {
+                        "status": "error",
+                        "message": " ".join(error_messages) or "Invalid data.",
+                    },
+                    status=400,
                 )
             messages.error(request, "Could not add item. Please check the quantity.")
             return redirect(request.POST.get("next", "menu"))
 
     messages.error(request, "Invalid request.")
     return redirect("menu")
+
+
+@require_POST
+@transaction.atomic
+def add_random_to_cart(request):
+    """Selects a random available menu item and adds it to the cart."""
+    cart = get_or_create_cart(request)
+    available_items = list(MenuItem.objects.filter(available=True))
+
+    if not available_items:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "No items available to choose from at the moment.",
+            },
+            status=404,
+        )
+
+    random_item = random.choice(available_items)
+    quantity = 1
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart, menu_item=random_item, defaults={"quantity": quantity}
+    )
+
+    if not created:
+        cart_item.quantity = F("quantity") + quantity
+        cart_item.save()
+
+    cart_item.refresh_from_db()
+    cart.refresh_from_db()
+
+    messages.success(
+        request, f"Surprise! {random_item.name} added to cart!"
+    )  # Server-side message
+
+    return JsonResponse({
+        "status": "success",
+        "message": f"Surprise! '{random_item.name}' added to cart!",
+        "cart_item_count": cart.items.count(),
+        "cart_total_quantity": sum(item.quantity for item in cart.items.all()),
+        "cart_total_price": float(cart.total_price()),
+        "added_item_name": random_item.name,
+    })
 
 
 def view_cart(request):
@@ -430,3 +490,4 @@ def contact(request):
 # TODO
 def about(request):
     return render(request, "orders/about.html")
+

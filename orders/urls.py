@@ -9,8 +9,10 @@ urlpatterns = [
     path("contact", views.contact, name="contact"),
     path("menu/", views.menu, name="menu"),
     path("menu/category/<int:category_id>/", views.menu, name="menu_category"),
+    path("menu/featured/", views.menu, {"show_featured": True}, name="menu_featured"),
     # Cart and checkout
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
+    path("cart/add-random/", views.add_random_to_cart, name="add_random_to_cart"),
     path("cart/", views.view_cart, name="view_cart"),
     path(
         "cart/update_and_checkout/",

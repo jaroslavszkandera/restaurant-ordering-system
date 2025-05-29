@@ -4,6 +4,35 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/menu.css">
+<style>
+  .random-dish-btn-container {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 300px;
+  }
+
+  #random-dish-btn {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+    width: 100%;
+  }
+
+  #random-dish-btn:hover {
+    background-color: #e0a800;
+  }
+
+  #random-dish-btn .fa-random {
+    margin-right: 8px;
+  }
+
+</style>
 {% endblock %}
 
 {% block content %}
@@ -18,11 +47,15 @@
     <button class="scroll-btn left" onclick="scrollCategories(-1)">←</button>
     <div class="category-list-wrapper overflow-hidden flex-grow-1">
       <div class="category-list d-flex">
-        <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}"
+        <a href="{% url 'menu' %}" class="category-btn {% if active_filter == 'all' %}active{% endif %}"
           data-href="{% url 'menu' %}" data-category="all">ALL</a>
+
+        <a href="{% url 'menu_featured' %}" class="category-btn {% if show_featured_active %}active{% endif %}"
+          data-href="{% url 'menu_featured' %}" data-category="featured">FEATURED</a>
+
         {% for cat_obj in categories %}
         <a href="{% url 'menu_category' cat_obj.id %}"
-          class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}"
+          class="category-btn {% if active_filter == cat_obj.id %}active{% endif %}"
           data-href="{% url 'menu_category' cat_obj.id %}" data-category="{{ cat_obj.name|lower }}">
           {{ cat_obj.name }}
         </a>
@@ -32,17 +65,24 @@
     <button class="scroll-btn right" onclick="scrollCategories(1)">→</button>
   </section>
 
-  <!-- Floating Menu Button (右下角圓形按鈕) -->
+  <section class="random-dish-btn-container my-4">
+    <button id="random-dish-btn">
+      <i class="fas fa-random"></i>I'm Feeling Lucky!
+    </button>
+  </section>
+
   <button id="floating-menu-btn" class="floating-menu-btn">
     ☰
   </button>
 
-  <!-- Hidden Category Menu -->
   <div id="floating-category-menu" class="floating-category-menu">
-    <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}" data-category="all">ALL</a>
+    <a href="{% url 'menu' %}" class="category-btn {% if active_filter == 'all' %}active{% endif %}"
+      data-category="all">ALL</a>
+    <a href="{% url 'menu_featured' %}" class="category-btn {% if show_featured_active %}active{% endif %}"
+      data-category="featured">FEATURED</a>
     {% for cat_obj in categories %}
     <a href="{% url 'menu_category' cat_obj.id %}"
-      class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}"
+      class="category-btn {% if active_filter == cat_obj.id %}active{% endif %}"
       data-category="{{ cat_obj.name|lower }}">
       {{ cat_obj.name }}
     </a>
@@ -69,23 +109,29 @@
         <div class="meta">
           <span>${{ item.price }}</span>
           <span class="badge bg-secondary">{{ item.category.name }}</span>
+          {% if item.is_featured %}
+          <span class="badge bg-warning text-dark">Featured</span>
+          {% endif %}
         </div>
         <form method="post" action="{% url 'add_to_cart' %}" class="footer add-to-cart-form">
           {% csrf_token %}
           <input type="hidden" name="menu_item_id" value="{{ item.id }}">
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <input type="number" name="quantity" value="1" min="1" max="10">
-          <button type="submit" class="btn">＋</button>
+          <input type="number" name="quantity" value="1" min="1" max="10"
+            class="form-control form-control-sm quantity-input me-2" style="width: 60px;">
+          <button type="submit" class="btn btn-sm btn-primary">＋</button>
         </form>
       </div>
     </div>
     {% endfor %}
   </section>
   {% else %}
-  <div class="alert alert-info text-center py-4">
+  <div class="alert alert-info text-center py-4 mt-4">
     <h4><i class="fas fa-info-circle me-2"></i>No Menu Items Found</h4>
     <p class="mb-0">
-      {% if category %}
+      {% if show_featured_active %}
+      There are currently no featured items available.
+      {% elif category %}
       There are currently no items available in the <strong>{{ category.name }}</strong> category.
       {% else %}
       Our menu is currently empty. Please check back soon!
@@ -97,5 +143,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+  const ADD_RANDOM_TO_CART_URL = "{% url 'add_random_to_cart' %}";
+  const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
 <script src="/static/js/menu.js"></script>
 {% endblock %}
