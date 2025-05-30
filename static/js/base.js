@@ -33,3 +33,20 @@ window.addEventListener("click", e => {
     window.location.href = window.logoutUrl;
   });
 });
+
+function toggleDropdown(event) {
+  event.stopPropagation();  
+  const menu = document.getElementById('historyMenu');
+  if (menu.style.display === 'block') {
+    menu.style.display = 'none';
+  } else {
+    menu.style.display = 'block';
+  }
+}
+
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById('historyMenu');
+  if (menu) {
+    menu.style.display = 'none';
+  }
+});

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}RESERVATION #{{ reservation.id }} DETAILS - Pomodoro House{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/form.css">
+<link rel="stylesheet" href="/static/css/table.css">
+<link rel="stylesheet" href="/static/css/detail.css">
+{% endblock %}
+
+{% block content %}
+<div class="order-page-wrapper">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Reservation Details</h1>
+    <a href="{% url 'reservation_history' %}" class="btn edit-cart-btn">
+      <i class="fas fa-arrow-left me-2"></i>Back to Reservation History
+    </a>
+  </div>
+
+  <div class="auth-container mx-auto">
+    <div class="mb-3">
+      <h4 class="mb-0">Reservation #{{ reservation.id }}</h4>
+    </div>
+
+    <div>
+      <h5>Reservation Info:</h5>
+      <p><strong>Date:</strong> {{ reservation.date|date:"F d, Y" }}</p>
+      <p><strong>Time Slot:</strong> {{ reservation.time_slot|time:"H:i" }}</p>
+      <p><strong>Guests:</strong> {{ reservation.guests }}</p>
+      <p><strong>Branch:</strong> {{ reservation.branch.name }}</p>
+    </div>
+
+    <hr style="border-top: 1.5px solid white ; margin-top: 0.25rem; margin-bottom: 1.5rem;">
+
+    <div>
+      <h5>Customer Info:</h5>
+      <p><strong>Name:</strong> {{ reservation.name }}</p>
+      <p><strong>Mobile:</strong> {{ reservation.mobile }}</p>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'reservation' %}" class="btn edit-cart-btn">
+        <i class="fas fa-utensils me-2"></i>Make Another Reservation
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}My CART - Our restaurant{% endblock %}
+{% block title %}My CART - Pomodoro House{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/cart.css">
@@ -15,7 +15,7 @@
   <div class="col-lg-8">
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0" id="cart-item-count">Cart Items ({{ cart_items|length }})</h5>
+        <h4 class="mb-0" id="cart-item-count">Cart Items ({{ cart_items|length }})</h4>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -48,19 +48,12 @@
                     </div>
                   </div>
                 </td>
-                <td class="text-center">${{ item.menu_item.price }}</td>
+                <td class="text-center item-price">${{ item.menu_item.price }}</td>
                 <td class="text-center">
-                  <form method="post" action="{% url 'view_cart' %}" class="update-cart-form">
-                    {% csrf_token %}
-                    <input type="hidden" name="cart_item_id" value="{{ item.id }}">
-                    <div class="quantity-update-container">
-                      <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="10"
-                        class="form-control form-control-sm quantity-input" data-item-id="{{ item.id }}">
-                      <button type="submit" class="btn btn-sm update-btn">Update</button>
-                    </div>
-                  </form>
+                  <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="0" max="10"
+                    class="form-control form-control-sm quantity-input" data-item-id="{{ item.id }}">
                 </td>
-                <td class="text-end">${{ item.subtotal }}</td>
+                <td class="text-end item-subtotal">${{ item.subtotal }}</td>
                 <td class="text-end">
                   <form method="post" action="{% url 'view_cart' %}" class="d-inline">
                     {% csrf_token %}
@@ -89,21 +82,27 @@
   <div class="col-lg-4">
     <div class="card second-card">
       <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Order Summary</h5>
+        <h4 class="mb-0">Order Summary</h4>
       </div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-3">
           <span>Subtotal:</span>
-          <span>${{ cart.total_price }}</span>
+          <span id="cart-total-price">${{ cart.total_price }}</span>
         </div>
         <hr>
         <div class="d-flex justify-content-between mb-3">
           <span class="fw-bold">Total:</span>
-          <span class="fw-bold">${{ cart.total_price }}</span>
+          <span class="fw-bold" id="cart-total-price-total">${{ cart.total_price }}</span>
         </div>
-        <a href="{% url 'checkout' %}" class="btn btn-checkout w-100">
-          <i class="fas fa-check-circle me-2"></i>Proceed to Checkout
-        </a>
+        <form method="post" action="{% url 'update_cart_and_checkout' %}">
+          {% csrf_token %}
+          {% for item in cart_items %}
+          <input type="hidden" name="quantity_{{ item.id }}" value="{{ item.quantity }}" id="checkout-qty-{{ item.id }}">
+          {% endfor %}
+          <button type="submit" class="btn btn-checkout w-100">
+            <i class="fas fa-check-circle me-2"></i>Proceed to Checkout
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -119,5 +118,10 @@
 </div>
 {% endif %}
 {% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/checkout.js"></script>
+{% endblock %}
+
 
 

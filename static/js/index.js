@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
   
     let prevScrollY = window.scrollY;
   
-    // 餐廳名稱淡入（快速）
+    // 餐廳名稱淡入
     setTimeout(() => {
       restaurantName.style.opacity = 1;
-    }, 200); // 更快顯示
+    }, 200); 
   
     window.addEventListener("scroll", () => {
       const scrollY = window.scrollY;
@@ -43,9 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return Math.min(Math.max((scrollY - start) / (end - start), 0), 1);
     }
   
-    /**
-     * 控制動畫淡入淡出
-     */
+    /* 控制動畫淡入淡出 */
     function animateSection(progress, direction, lines, textElements, image, includeImage = false, imageShouldFadeOut = true, extraElementForFadeOut = null) {
       const elements = [];
   
@@ -117,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // 額外處理 freshImage：出現在 fresh-section 開始，到 selectivity-section 結束後才淡出
+    // 額外處理 freshImage
     function animateImageAcrossSections(scrollY, vh, image) {
         const start = vh * 1.5;
         const end = vh * 4.5;
@@ -160,7 +158,6 @@ if (window.innerWidth <= 768) {
   filterStores('Northern Region');
 }
 
-// 同步 <select> 下拉選單變更事件（主要是表單支援）
 regionSelect.addEventListener('change', () => {
   filterStores(regionSelect.value);
 });
@@ -177,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentValue = originalSelect.value;
 
-  // 建立下拉選單
   function createDropdown() {
     customDropdown.innerHTML = `
       <div class="selected">
@@ -202,7 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedText.textContent = region.label;
         optionsContainer.style.display = "none";
 
-        // 同步原生 select 元素（表單或邏輯用途）
         originalSelect.value = region.value;
         originalSelect.dispatchEvent(new Event("change"));
       });
@@ -210,7 +205,6 @@ document.addEventListener("DOMContentLoaded", () => {
       optionsContainer.appendChild(opt);
     });
 
-    // 點擊整個 selected 區域（包含箭頭）展開選單
     selected.addEventListener("click", () => {
       const isOpen = optionsContainer.style.display === "block";
       document.querySelectorAll(".custom-dropdown .options").forEach(opt => opt.style.display = "none");

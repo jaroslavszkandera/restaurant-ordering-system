@@ -1,0 +1,57 @@
+#orderModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#orderModal .modal-content {
+  background-color: #222 !important;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 15px !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5); 
+  border: 1.5px solid white !important;
+  width: 60% !important;
+  max-width: 400px;
+  position: relative;
+  text-align: center;
+  z-index: 10001 !important;
+}
+
+#orderModal .close-btn-modal {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#orderModal .modal-content form button[type="submit"] {
+  background-color: #222;
+  color: white;
+  border: 2px solid white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px !important;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 0.7rem;
+  font-size: 0.9rem;
+}
+
+#orderModal .modal-content form button[type="submit"]:hover {
+  background-color: yellow;
+  color: black;
+  border: 2px solid yellow;
+  font-weight: bold;
+  transition: background 0.3s;
+}

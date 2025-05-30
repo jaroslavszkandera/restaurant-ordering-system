@@ -14,74 +14,66 @@ from datetime import timedelta, time, datetime
 from django.utils import timezone
 from django.db.models import Sum
 from django.contrib.auth.decorators import user_passes_test
-from collections import defaultdict
+from django.views.decorators.http import require_POST
 from .models import Branch, Reservation, BranchTimeSlotCapacity
 from .models import Category, MenuItem, Customer, Cart, CartItem, Order, OrderItem
 from .forms import (
     UserRegistrationForm,
-    CustomerForm,
     AddToCartForm,
     CartUpdateForm,
     CheckoutForm,
 )
 
-
 def get_or_create_customer_for_user(user):
-    """
-    Retrieves or creates a Customer profile for a given User.
-    """
     customer, created = Customer.objects.get_or_create(
         user=user,
         defaults={
             "name": user.get_full_name() or user.username,
             "email": user.email,
+            # "phone":
         },
     )
     return customer
 
 
 def get_or_create_cart(request):
-    """Helper function to get or create a cart based on session or user."""
-    cart = None
-    if request.user.is_authenticated:
-        customer = get_or_create_customer_for_user(request.user)
-        cart, created = Cart.objects.get_or_create(customer=customer)
+    customer = None
+    if request.user.is_authenticated and hasattr(request.user, "customer"):
+        customer = request.user.customer
 
-        # Check if there's a session cart to merge
-        session_id = request.session.get("cart_session_id")
-        if session_id:
+    if customer:
+        cart, created = Cart.objects.get_or_create(customer=customer)
+        session_cart_id = request.session.get("cart_session_id")
+        if session_cart_id:
             try:
-                session_cart = Cart.objects.get(
-                    session_id=session_id, customer__isnull=True
+                guest_cart = Cart.objects.get(
+                    session_id=session_cart_id, customer__isnull=True
                 )
-                # Merge session_cart into user_cart
-                for item in session_cart.items.all():
-                    user_cart_item, item_created = CartItem.objects.get_or_create(
+                for item in guest_cart.items.all():
+                    existing_item, item_created = CartItem.objects.get_or_create(
                         cart=cart,
                         menu_item=item.menu_item,
                         defaults={"quantity": item.quantity},
                     )
                     if not item_created:
-                        user_cart_item.quantity = F("quantity") + item.quantity
-                        user_cart_item.save()
-                session_cart.delete()
-                request.session.pop("cart_session_id", None)  # Clear session key
+                        existing_item.quantity += item.quantity
+                        existing_item.save()
+                guest_cart.delete()
+                del request.session["cart_session_id"]
             except Cart.DoesNotExist:
-                pass  # No session cart to merge or already merged
-
+                pass
+        return cart
     else:
         session_id = request.session.get("cart_session_id")
         if not session_id:
-            request.session.create()  # Ensure session exists
+            request.session.create()
             session_id = request.session.session_key
-            request.session["cart_session_id"] = (
-                session_id  # Store specifically for cart
-            )
+            request.session["cart_session_id"] = session_id
 
         cart, created = Cart.objects.get_or_create(
             session_id=session_id, customer__isnull=True
         )
-    return cart
+        return cart
 
 
 def index(request):
@@ -120,7 +112,7 @@ def menu(request, category_id=None):
     )
 
 
-@transaction.atomic  # JS: maybe an overkill
+@transaction.atomic
 def add_to_cart(request):
     """Add an item to the cart."""
     if request.method == "POST":
@@ -167,6 +159,7 @@ def add_to_cart(request):
     messages.error(request, "Invalid request.")
     return redirect("menu")
 
+
 def view_cart(request):
     """View and update cart."""
     cart = get_or_create_cart(request)
@@ -187,7 +180,7 @@ def view_cart(request):
                     messages.success(
                         request, f"{cart_item.menu_item.name} quantity updated!"
                     )
-                else:  # Quantity is 0 or less, remove the item
+                else:  
                     item_name = cart_item.menu_item.name
                     cart_item.delete()
                     messages.success(request, f"{item_name} removed from cart!")
@@ -198,9 +191,7 @@ def view_cart(request):
             return redirect("view_cart")
         else:
             messages.error(request, "Invalid data submitted. Please check your input.")
-            # No need to repopulate update_forms for error display if template renders manually
 
-    # For GET request, no individual forms are needed if template renders inputs manually
     return render(
         request,
         "orders/cart.html",
@@ -208,55 +199,77 @@ def view_cart(request):
     )
 
 
+@require_POST
 @transaction.atomic
-def checkout(request):
-    """Checkout process."""
+def update_cart_and_checkout(request):
     cart = get_or_create_cart(request)
 
-    if not cart.items.exists():
+    for item in cart.items.all():
+        quantity = request.POST.get(f"quantity_{item.id}")
+        if quantity is not None:
+            try:
+                qty = int(quantity)
+                if qty > 0:
+                    item.quantity = qty
+                    item.save()
+                else:
+                    item.delete()
+            except ValueError:
+                continue
+
+    return redirect("checkout")
+
+
+@transaction.atomic
+def checkout(request):
+    cart = get_or_create_cart(request)
+
+    if not cart or not cart.items.exists():
         messages.warning(request, "Your cart is empty!")
         return redirect("menu")
 
-    customer = None
+    current_customer_instance = None
     if request.user.is_authenticated:
-        customer = get_or_create_customer_for_user(request.user)
+        current_customer_instance = get_or_create_customer_for_user(request.user)
 
     if request.method == "POST":
-        form = CheckoutForm(
-            request.POST, user=request.user, instance=customer if customer else None
-        )
+        form = CheckoutForm(request.POST, user=request.user)
         if form.is_valid():
+            customer_data_from_form = {
+                "name": form.cleaned_data["name"],
+                "email": form.cleaned_data["email"],
+                "phone": form.cleaned_data["phone"],
+            }
+            final_customer = None
+
             if request.user.is_authenticated:
-                # Customer should already be set or
-                #   created via get_or_create_cart/get_or_create_customer_for_user
-                # Update customer details if the form allows it (e.g. address, phone)
-                if (
-                    customer and form.has_changed()
-                ):  # Check if form is bound to customer instance and has changes
-                    form.save()
-            else:
-                customer_data = {
-                    key: form.cleaned_data[key]
-                    for key in ["name", "email", "phone"]
-                    if key in form.cleaned_data
-                }
-                # This logic might need refinement based on CheckoutForm structure
-                # email is unique for customers, get_or_create by email.
-                if "email" in customer_data:
-                    customer, _ = Customer.objects.get_or_create(
-                        email=customer_data["email"], defaults=customer_data
+                final_customer = current_customer_instance
+                needs_save = False
+                for field, value in customer_data_from_form.items():
+                    if value and getattr(final_customer, field) != value:
+                        setattr(final_customer, field, value)
+                        needs_save = True
+                if needs_save:
+                    if final_customer.user.email != customer_data_from_form["email"]:
+                        final_customer.user.email = customer_data_from_form["email"]
+                        final_customer.user.save(update_fields=["email"])
+                    final_customer.save()
+            else:  # Guest user
+                try:
+                    final_customer = Customer.objects.get(
+                        email=customer_data_from_form["email"], user__isnull=True
                     )
-                    if not _:  # if customer was fetched, update details
-                        for attr, value in customer_data.items():
-                            setattr(customer, attr, value)
-                        customer.save()
-                else:  # Fallback if no email for guest, less ideal
-                    customer = Customer.objects.create(**customer_data)
+                    final_customer.name = customer_data_from_form["name"]
+                    final_customer.phone = customer_data_from_form["phone"]
+                    final_customer.save()
+                except Customer.DoesNotExist:
+                    final_customer = Customer.objects.create(**customer_data_from_form)
 
             order = Order.objects.create(
-                customer=customer,
+                customer=final_customer,
                 status=Order.Status.PENDING,
                 special_instructions=form.cleaned_data.get("special_instructions", ""),
+                pickup_branch=form.cleaned_data["pickup_branch"],
             )
 
             for cart_item in cart.items.all():
@@ -264,33 +277,29 @@ def checkout(request):
                     order=order,
                     menu_item=cart_item.menu_item,
                     quantity=cart_item.quantity,
-                    price=cart_item.menu_item.price,  # Crucial: price at time of order
+                    price=cart_item.menu_item.price,
                 )
 
             cart.items.all().delete()
-
-            # Allow guest access to order confirmation page
-            guest_order_ids = request.session.get("guest_order_ids", [])
-            guest_order_ids.append(order.id)
-            request.session["guest_order_ids"] = guest_order_ids          
-            
-            if (
-                cart.session_id and not cart.customer
-            ):  # If it was a session-only cart, can delete it.
+            if cart.session_id and not cart.customer:
                 cart.delete()
-                request.session.pop("cart_session_id", None)
+                if "cart_session_id" in request.session:
+                    del request.session["cart_session_id"]
 
             messages.success(request, "Order placed successfully!")
+            request.session["last_order_id"] = order.id
             return redirect("order_confirmation", order_id=order.id)
+        else:
+            messages.error(
+                request, "Please correct the errors below. Check all fields."
+            )
     else:
-        initial_data = {}
-        if customer:  # Pre-fill for logged-in user
-            initial_data = {
-                "name": customer.name,
-                "email": customer.email,
-                "phone": customer.phone,
-            }
-        form = CheckoutForm(user=request.user, initial=initial_data)
+        initial_form_data = {}
+        if current_customer_instance:  
+            initial_form_data["name"] = current_customer_instance.name
+            initial_form_data["email"] = current_customer_instance.email
+            initial_form_data["phone"] = current_customer_instance.phone
+        form = CheckoutForm(user=request.user, initial=initial_form_data)
 
     return render(
         request,
@@ -304,34 +313,33 @@ def checkout(request):
 
 
 def order_confirmation(request, order_id):
-    """Order confirmation page."""
-    order = get_object_or_404(Order.objects.select_related("customer"), id=order_id)
-
+    order = get_object_or_404(
+        Order.objects.select_related("customer").prefetch_related("items__menu_item"),
+        id=order_id,
+    )
     can_view = False
 
-    # 1. 登入使用者可看自己下的訂單
     if request.user.is_authenticated and hasattr(request.user, "customer"):
         if order.customer == request.user.customer:
             can_view = True
-
-    # 2. 未登入使用者，可從 session 確認剛剛建立的 order_id
-    if not can_view:
-        guest_order_ids = request.session.get("guest_order_ids", [])
-        if order.id in guest_order_ids:
+    elif order.customer and not order.customer.user:
+        last_order_id_in_session = request.session.get("last_order_id")
+        if last_order_id_in_session == order.id:
             can_view = True
 
-    # 3. 拒絕非授權存取
     if not can_view:
-        messages.error(request, "You don't have permission to view this order confirmation.")
-        return redirect("index")
+        messages.error(
+            request,
+            "You don't have permission to view this order confirmation, or your session has expired.",
+        )
+        return redirect("index")  
 
     return render(request, "orders/order_confirmation.html", {"order": order})
 
 
-
+# TODO
 @login_required
 def order_detail(request, order_id):
-    """Displays details of a specific order."""
     try:
         customer = request.user.customer
         order = get_object_or_404(
@@ -344,9 +352,7 @@ def order_detail(request, order_id):
     except Customer.DoesNotExist:
         messages.error(request, "Customer profile not found.")
         return redirect("index")
-    except (
-        Order.DoesNotExist
-    ):  # Should be caught by get_object_or_404 if customer filter is not applied first
+    except Order.DoesNotExist:
         messages.error(
             request, "Order not found or you do not have permission to view it."
         )
@@ -355,6 +361,7 @@ def order_detail(request, order_id):
     return render(request, "orders/order_detail.html", {"order": order})
 
 
+# TODO
 @login_required
 def order_history(request):
     """View order history for authenticated users."""
@@ -366,12 +373,39 @@ def order_history(request):
             .prefetch_related("items")
         )
     except Customer.DoesNotExist:
-        # This case should ideally be handled by ensuring customer profile exists upon login/registration.
         messages.warning(request, "No customer profile found to display order history.")
         orders_list = []
 
     return render(request, "orders/order_history.html", {"orders": orders_list})
 
+
+def check_cart_empty(request):
+    cart = get_or_create_cart(request)  
+    return JsonResponse({'is_empty': cart.items.count() == 0})
+
+def reorder_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    cart = get_or_create_cart(request)
+
+    if request.method == "POST" and request.POST.get("force") == "true":
+        cart.items.all().delete()
+    elif cart.items.exists():
+        messages.warning(request, "Your cart is not empty. Please clear it to reorder.")
+        return redirect("order_detail", order_id=order_id)
+    for item in order.items.all():
+        try:
+            latest_menu_item = MenuItem.objects.get(id=item.menu_item.id)
+
+            CartItem.objects.create(
+                cart=cart,
+                menu_item=latest_menu_item,
+                quantity=item.quantity
+            )
+        except MenuItem.DoesNotExist:
+            continue
+
+    messages.success(request, "Order items added to cart!")
+    return redirect("view_cart")
 
 @transaction.atomic
 def register(request):
@@ -406,12 +440,12 @@ def register(request):
                     session_cart.delete()
                     request.session.pop("cart_session_id", None)
                 except Cart.DoesNotExist:
-                    pass  # No guest cart to merge
+                    pass  
 
             messages.success(
                 request, f"Registration successful! Welcome, {user.username}."
             )
-            return redirect("index")  # Or LOGIN_REDIRECT_URL
+            return redirect("index") 
         else:
             messages.error(request, "Please correct the errors below.")
     else:
@@ -422,7 +456,6 @@ def register(request):
         "registration/register.html",
         {"user_form": user_form},
     )
-
 
 def logout_view(request):
     logout(request)
@@ -442,7 +475,14 @@ def contact_view(request):
             messages.success(request, "Thank you for contacting us!")
             return redirect('index')
     else:
-        form = ContactForm()
+        initial_data = {}
+        if request.user.is_authenticated:
+            full_name = f"{request.user.first_name} {request.user.last_name}".strip()
+            if full_name:
+                initial_data['name'] = full_name
+            initial_data['email'] = request.user.email
+        form = ContactForm(initial=initial_data)
+
     return render(request, 'orders/contact.html', {'form': form})
 
 def get_time_slots(branch, date, requested_guests=1):
@@ -461,7 +501,6 @@ def get_time_slots(branch, date, requested_guests=1):
 
     now = datetime.now().astimezone()
 
-    # 抓出該分店該星期幾所有 slot 設定
     slot_settings = {
         s.time_slot: s for s in BranchTimeSlotCapacity.objects.filter(
             branch=branch,
@@ -479,7 +518,7 @@ def get_time_slots(branch, date, requested_guests=1):
             setting = slot_settings.get(slot_time)
             if not setting:
                 dt += timedelta(minutes=30)
-                continue  # 沒設定就略過
+                continue  
 
             if not setting.available:
                 available = False
@@ -517,24 +556,20 @@ def get_branch_availability(branches, date, guests):
     for branch in branches:
         branch_slots = {}
 
-        # 抓出這個分店當天所有有定義的時段上限
         time_slots = BranchTimeSlotCapacity.objects.filter(
             branch=branch,
             weekday=weekday
         )
 
         for slot in time_slots:
-            # 查詢這個分店在這個時段、這天的總訂位人數
             reserved = Reservation.objects.filter(
                 branch=branch,
                 date=date,
                 time_slot=slot.time_slot
             ).aggregate(total=Sum('guests'))['total'] or 0
 
-            # 如果沒設定 max_capacity 就預設為 20
             max_capacity = slot.max_capacity if slot.max_capacity is not None else 20
 
-            # 計算是否足夠容納這次預約
             remaining = max_capacity - reserved
             branch_slots[str(slot.time_slot)] = {
                 'remaining': remaining,
@@ -575,18 +610,20 @@ def fetch_available_time_slots(request):
 def reservation(request):
     today = timezone.localdate()
     two_months_later = today + timedelta(days=60)
-    branches = Branch.objects.filter(is_active=True)
+    branches = Branch.objects.filter(is_reservable=True)
+
+    full_name = ""
+    if request.user.is_authenticated:
+        full_name = f"{request.user.first_name} {request.user.last_name}".strip()
 
     if request.method == 'POST':
-        # 取得表單資料
         branch_id = request.POST.get('branch')
         date_str = request.POST.get('date')
         time_str = request.POST.get('time_slot')
         guests_str = request.POST.get('guests')
-        name = request.POST.get('name')
+        name = request.POST.get('name') or full_name
         mobile = request.POST.get('mobile')
 
-        # 準備錯誤訊息
         field_errors = {}
         is_valid = True
 
@@ -612,7 +649,7 @@ def reservation(request):
 
         # 驗證分店
         try:
-            branch = Branch.objects.get(pk=int(branch_id), is_active=True)
+            branch = Branch.objects.get(pk=int(branch_id), is_reservable=True)
         except:
             field_errors['error_branch'] = "Please select a valid branch."
             is_valid = False
@@ -634,9 +671,8 @@ def reservation(request):
             field_errors['error_mobile'] = "Enter a valid 10-digit phone number."
             is_valid = False
 
-        # **後端再次驗證時段是否還有剩餘容量**
+        # 再次確認時段是否仍可預約
         if is_valid:
-            # 取得該分店該天該時段的時段列表
             slots = get_time_slots(branch, date, guests)
             matched_slot = next((s for s in slots if s['time'] == time_slot), None)
             if not matched_slot or not matched_slot['available']:
@@ -660,11 +696,10 @@ def reservation(request):
         else:
             error_message = "Please correct the errors below."
 
-        # 預設錯誤後保留值
         branch_availability = get_branch_availability(branches, date, guests) if 'date' in locals() else {}
         available_time_slots = get_time_slots(branch, date, guests) if 'date' in locals() and 'branch' in locals() else []
 
-        context = {
+        return render(request, 'reservation/reservation.html', {
             'error_message': error_message,
             'today': today,
             'two_months_later': two_months_later,
@@ -675,17 +710,16 @@ def reservation(request):
             'selected_date': date if 'date' in locals() else None,
             'selected_branch_id': branch_id,
             'selected_guests': guests_str,
+            'name': name,
+            'mobile': mobile,
             **field_errors,
-        }
+        })
 
-        return render(request, 'reservation/reservation.html', context)
-
-    else:  # GET 請求處理
+    else:
         selected_date_str = request.GET.get('date')
         selected_branch_id = request.GET.get('branch')
         selected_guests_str = request.GET.get('guests', '1')
 
-        # 若缺少必要參數則重導向附帶預設參數
         if not selected_date_str or not selected_branch_id:
             default_date = today.strftime('%Y-%m-%d')
             default_branch_id = str(branches.first().id) if branches.exists() else ''
@@ -704,7 +738,7 @@ def reservation(request):
             selected_guests = 1
 
         try:
-            branch = get_object_or_404(Branch, pk=int(selected_branch_id), is_active=True)
+            branch = get_object_or_404(Branch, pk=int(selected_branch_id), is_reservable=True)
             available_time_slots = get_time_slots(branch, selected_date, selected_guests)
             branch_availability = get_branch_availability(branches, selected_date, selected_guests)
         except Exception as e:
@@ -712,7 +746,7 @@ def reservation(request):
             available_time_slots = []
             branch_availability = {}
 
-        context = {
+        return render(request, 'reservation/reservation.html', {
             'today': today,
             'two_months_later': two_months_later,
             'branches': branches,
@@ -722,42 +756,37 @@ def reservation(request):
             'selected_date': selected_date,
             'selected_branch_id': selected_branch_id,
             'selected_guests': selected_guests,
-        }
-
-        return render(request, 'reservation/reservation.html', context)
+            'name': full_name,
+        })
 
 
 def reservation_confirmation(request, id):
     reservation = get_object_or_404(Reservation, pk=id)
     return render(request, 'reservation/reservation_confirmation.html', {'reservation': reservation})
 
-@user_passes_test(lambda u: u.is_active and u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser)
 def branch_schedule(request):
-    branches = Branch.objects.filter(is_active=True).order_by('name')
+    branches = Branch.objects.filter(is_reservable=True).order_by('name')
     today = timezone.localdate()
 
-    # 取得 GET 參數
     branch_id = request.GET.get('branch')
     range_option = request.GET.get('range', 'future_all')
     time_slot_filter = request.GET.get('time_slot', 'all')
 
-    # 取得選擇的分店物件或 None 表示全部
     selected_branch = None
     if branch_id:
         if branch_id == 'all':
             selected_branch = None
         else:
             try:
-                selected_branch = Branch.objects.get(pk=branch_id, is_active=True)
+                selected_branch = Branch.objects.get(pk=branch_id, is_reservable=True)
             except Branch.DoesNotExist:
                 selected_branch = None
 
-    # 取得預約 queryset 並過濾分店
     qs = Reservation.objects.all()
     if selected_branch:
         qs = qs.filter(branch=selected_branch)
 
-    # 時間範圍篩選
     if range_option == "all":
         pass
     elif range_option == "past_year":
@@ -771,20 +800,16 @@ def branch_schedule(request):
     elif range_option == "next_week":
         end = today + timedelta(days=7)
         qs = qs.filter(date__gte=today, date__lte=end)
-    else:  # future_all or default
+    else:  
         qs = qs.filter(date__gte=today)
 
-    # 時段過濾（time_slot 是 TimeField 或 CharField，視你的模型而定）
     if time_slot_filter != 'all':
         try:
-            # 如果 time_slot 是 TimeField，要轉成 time 物件過濾
             filtered_time = datetime.strptime(time_slot_filter, "%H:%M").time()
             qs = qs.filter(time_slot=filtered_time)
         except ValueError:
-            # 如果格式錯誤，忽略時段過濾
             pass
 
-    # 產生固定半小時時段列表，給前端下拉選單用
     time_slots = generate_time_slots()
 
     context = {
@@ -806,3 +831,11 @@ def generate_time_slots(start_time=time(11,0), end_time=time(22,30), interval_mi
         slots.append(current.time())
         current += timedelta(minutes=interval_minutes)
     return slots
+
+def reservation_history(request):
+    reservations = Reservation.objects.order_by("-created_at")
+    return render(request, "reservation/reservation_history.html", {"reservations": reservations})
+
+def reservation_detail(request, reservation_id):
+    reservation = get_object_or_404(Reservation, pk=reservation_id)
+    return render(request, "reservation/reservation_detail.html", {"reservation": reservation})

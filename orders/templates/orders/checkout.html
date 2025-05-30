@@ -1,108 +1,260 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}CHECKOUT - Our restaurant{% endblock %}
+{% block title %}CHECKOUT - Pomodoro House{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/form.css">  {# 表單共用CSS #}
-<link rel="stylesheet" href="/static/css/table.css">  
+<link rel="stylesheet" href="/static/css/form.css">  
+<link rel="stylesheet" href="/static/css/table.css"> 
+<link rel="stylesheet" href="/static/css/checkout.css">   
 {% endblock %}
 
 {% block content %}
-<main class="container d-flex flex-column align-items-center justify-content-start" style="margin-top: 100px;">
-  <div class="auth-container">
+<h2 class="chackout-heading">Checkout</h2>
+<main class="container mt-5 px-lg-4">
+  <div class="row gy-4 d-flex align-items-stretch">
+    <!-- Checkout Form -->
+    <div class="col-lg-6">
+      <div class="card custom-cart-card p-4 w-100 auth-container">
+        <h4 class="auth-title with-divider">Orderer Information</h4>
 
-    <h1 class="auth-title">Checkout</h1>
-
-    <form method="post" class="w-100">
-      {% csrf_token %}
-
-      {% if messages %}
-        {% for message in messages %}
-          {% if 'checkout' in message.tags %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-
-      <fieldset class="mb-4">
-        <legend class="h5">Shipping & Payment Information</legend>
-
-        {% if not user.is_authenticated %}
-          <h5 class="mb-3">Contact Information</h5>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              {{ form.name|as_crispy_field }}
-            </div>
-            <div class="col-md-6 mb-3">
-              {{ form.email|as_crispy_field }}
-            </div>
+        {% if form.errors and request.method == 'POST' %}
+          <div class="text-danger mb-3" style="font-size: 0.75rem; color: #dc3545 !important;">
+            Kindly review the details you’ve entered.
           </div>
-          <div class="mb-3">
-            {{ form.phone|as_crispy_field }}
-          </div>
-          <hr>
-        {% else %}
-          <p>You are checking out as <strong style="color: yellow; font-weight: bold;">{{ user.username }}</strong>.</p>
-          <p>Name: {{ form.instance.name|default:user.customer.name|default:user.get_full_name|default:user.username }}</p>
-          <p>Email: {{ form.instance.email|default:user.customer.email|default:user.email }}</p>
-          <p>Phone: {{ form.instance.phone|default:user.customer.phone|default:"Not set" }}</p>
-          <p><small class="text-muted checkout-note">If these details need updating, please update them in your profile or ensure your form allows this.</small></p>
-
-          {% if form.name %}
-            <h5 class="mb-3">Verify or Update Your Details (Optional)</h5>
-            {{ form.name|as_crispy_field }}
-            {{ form.email|as_crispy_field }}
-            {{ form.phone|as_crispy_field }}
-          {% endif %}
-          <hr>
         {% endif %}
 
-        <h5 class="mb-3">Special Instructions</h5>
-        {{ form.special_instructions|as_crispy_field }}
-      </fieldset>
+        <form method="post" class="w-100" novalidate>
+          {% csrf_token %}
 
-      <button type="submit" class="btn w-100 custom-login-btn">
-        <i class="fas fa-lock me-2"></i>Place Order
-      </button>
-    </form>
-
-    <hr class="my-4">
-
-    <h3 class="mb-3 text-center">Your Order Summary</h3>
-    {% if cart_items %}
-      <ul class="list-group list-group-flush">
-        {% for item in cart_items %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div class="order-item-details">
-              <h6 class="my-0">{{ item.menu_item.name }}</h6>
-              <small class="text-muted">Quantity: {{ item.quantity }}</small>
+          {% if form.non_field_errors %}
+            <div class="text-danger mb-2" style="font-size: 0.8rem; color: #dc3545 !important;">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
             </div>
-            <span class="text-muted">${{ item.subtotal|floatformat:2 }}</span>
-          </li>
-        {% endfor %}
-        <li class="list-group-item d-flex justify-content-between bg-dark text-white">
-          <span class="fw-bold">Subtotal</span>
-          <strong>${{ cart.total_price|floatformat:2 }}</strong>
-        </li>
-        <li class="list-group-item d-flex justify-content-between bg-dark text-white">
-          <span class="fw-bold">Total</span>
-          <strong class="h5 mb-0">${{ cart.total_price|floatformat:2 }}</strong>
-        </li>
-      </ul>
-    {% else %}
-      <p class="text-center text-muted">Your cart is empty.</p>
-    {% endif %}
+          {% endif %}
 
-    <div class="text-center mt-3">
-    <a href="{% url 'view_cart' %}" class="edit-cart-btn">
-      <i class="fas fa-edit me-1"></i> Edit Cart
-    </a>
+          {% if not user.is_authenticated %}
+            <!-- Pickup Branch -->
+            <div class="form-group mb-3">
+              <label for="{{ form.pickup_branch.id_for_label }}" class="form-label mb-1">
+                Pickup Branch <span class="text-white">*</span>
+              </label>
+              {{ form.pickup_branch }}
+              <div id="customDropdownPickupUnauth" class="dropdown-select">
+                <div class="selected">
+                  <span>Select a pickup location</span>
+                  <span class="arrow">▼</span>
+                </div>
+                <div class="options">
+                  {% for choice in form.pickup_branch.field.queryset %}
+                    <div class="option" data-value="{{ choice.id }}">{{ choice.name }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% if form.pickup_branch.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.pickup_branch.errors|join:", " }}
+                </small>
+              {% else %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  Please select a pickup location.
+                </small>
+              {% endif %}
+            </div>
+
+            <!-- Name -->
+            <div class="form-group mb-3">
+              <label for="{{ form.name.id_for_label }}" class="form-label mb-1">
+                Name <span class="text-white">*</span>
+              </label>
+              {{ form.name }}
+              {% if form.name.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.name.errors|join:", " }}
+                </small>
+              {% endif %}
+              <small class="text-muted d-block" style="font-size: 0.75rem;">
+                Please enter your full name.
+              </small>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group mb-3">
+              <label for="{{ form.email.id_for_label }}" class="form-label mb-1">
+                Email <span class="text-white">*</span>
+              </label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.email.errors|join:", " }}
+                </small>
+              {% endif %}
+              <small class="text-muted d-block" style="font-size: 0.75rem;">
+                Your receipt will be sent here.
+              </small>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group mb-3">
+              <label for="{{ form.phone.id_for_label }}" class="form-label mb-1">
+                Phone <span class="text-white">*</span>
+              </label>
+              {{ form.phone }}
+              {% if form.phone.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.phone.errors|join:", " }}
+                </small>
+              {% endif %}
+              <small class="text-muted d-block" style="font-size: 0.75rem;">
+                We may contact you for updates.
+              </small>
+            </div>
+
+          {% else %}
+            <p>You are checking out as <strong style="color: yellow; font-weight: bold;">{{ user.username }}</strong>.</p>
+            <p>Name: {{ form.instance.name|default:user.customer.name|default:user.get_full_name|default:user.username }}</p>
+            <p>Email: {{ form.instance.email|default:user.customer.email|default:user.email }}</p>
+            <p>Phone: {{ form.instance.phone|default:user.customer.phone|default:"Not set" }}</p>
+
+            <!-- Pickup Branch -->
+            <div class="form-group mb-3">
+              <label for="id_pickup_branch" class="form-label mb-1">
+                Pickup Branch <span class="text-white">*</span>
+              </label>
+              {{ form.pickup_branch }}
+              <div id="customDropdown" class="dropdown"></div>
+
+              {% if form.pickup_branch.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.pickup_branch.errors|join:", " }}
+                </small>
+              {% else %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  Please select a pickup location.
+                </small>
+              {% endif %}
+            </div>
+
+            <p><small class="text-muted checkout-note">If these details need updating, please update them in your profile or below.</small></p>
+            <hr style="border-color: #ccc; margin-top: 0.5rem; margin-bottom: 1.5rem;">
+
+            {% if form.name %}
+              <h5 class="mb-3">Verify or Update Your Details (Optional)</h5>
+
+              <!-- Name -->
+              <div class="form-group mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label mb-1">
+                  Name <span class="text-white">*</span>
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                  <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                    {{ form.name.errors|join:", " }}
+                  </small>
+                {% endif %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  Please enter your full name.
+                </small>
+              </div>
+
+              <!-- Email -->
+              <div class="form-group mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label mb-1">
+                  Email <span class="text-white">*</span>
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                    {{ form.email.errors|join:", " }}
+                  </small>
+                {% endif %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  Your receipt will be sent here.
+                </small>
+              </div>
+
+              <!-- Phone -->
+              <div class="form-group mb-3">
+                <label for="{{ form.phone.id_for_label }}" class="form-label mb-1">
+                  Phone <span class="text-white">*</span>
+                </label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                  <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                    {{ form.phone.errors|join:", " }}
+                  </small>
+                {% endif %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  We may contact you for updates.
+                </small>
+              </div>
+            {% endif %}
+          {% endif %}
+
+          <!-- Special instructions -->
+          <div class="form-group mb-3">
+            <label for="{{ form.special_instructions.id_for_label }}" class="form-label mb-1">
+              Special Instructions
+            </label>
+            {{ form.special_instructions }}
+            {% if form.special_instructions.errors %}
+              <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                {{ form.special_instructions.errors|join:", " }}
+              </small>
+            {% endif %}
+            <small class="text-muted d-block" style="font-size: 0.75rem;">
+              Any special requests or allergies?
+            </small>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn w-100 custom-login-btn">
+            <i class="fas fa-lock me-2"></i>Place Order
+          </button>
+        </form>
+      </div>
     </div>
-  </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-6">
+      <div class="card custom-cart-card second-card p-4 w-100 d-flex flex-column">
+        <h4 class="text-center">Order Summary</h4>
+        {% if cart_items %}
+          <ul class="list-group list-group-flush no-top-border">
+            {% for item in cart_items %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div class="order-item-details">
+                  <h6 class="my-0">{{ item.menu_item.name }}</h6>
+                  <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                </div>
+                <span class="text-muted">${{ item.subtotal|floatformat:2 }}</span>
+              </li>
+            {% endfor %}
+            <li class="list-group-item d-flex justify-content-between bg-dark text-white">
+              <span class="fw-bold">Subtotal</span>
+              <strong>${{ cart.total_price|floatformat:2 }}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between bg-dark text-white">
+              <span class="fw-bold">Total</span>
+              <strong class="h5 mb-0">${{ cart.total_price|floatformat:2 }}</strong>
+            </li>
+          </ul>
+        {% else %}
+          <p class="text-center text-muted">Your cart is empty.</p>
+        {% endif %}
+
+        <div class="edit-cart-container text-center mt-3 mt-auto mb-2">
+          <a href="{% url 'view_cart' %}" class="edit-cart-btn btn btn-outline-primary rounded-pill px-4 py-2 fw-bold">
+            <i class="fas fa-edit me-1"></i> Edit Cart
+          </a>
+        </div>
+      </div>
+    </div>
 </main>
 {% endblock %}
 
+{% block extra_js %}
+<script src="/static/js/checkout.js"></script>
+{% endblock %}

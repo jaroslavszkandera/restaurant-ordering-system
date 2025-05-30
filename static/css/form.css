@@ -12,7 +12,7 @@
 .custom-login-btn {
   background-color: yellow !important;
   color: black !important;
-  font-weight: bold;
+  font-weight: bold !important;
   border: 2px solid yellow !important;
   transition: all 0.3s ease;
   border-radius: 999px !important;
@@ -33,6 +33,7 @@
   border: 1.3px solid white !important;
   box-shadow: inset 0 0 25px black;
   transition: box-shadow 0.3s ease;
+  height: 40px !important;
 }
 
 .form-control:focus {
@@ -66,7 +67,6 @@
   color: #999 !important;
 }
 
-/* 預設商品區使用白色 */
 .list-group-item .text-muted {
   color: white !important;
 }
@@ -85,7 +85,7 @@
 /* 輸入框 placeholder 字體顏色為白色 */
 .form-control::placeholder {
   color: #888 !important;
-  opacity: 1; /* 確保不會被淡化 */
+  opacity: 1; 
 }
 
 .status-badge {
@@ -115,31 +115,32 @@
     border-color: #dc3545 !important;
 }
 
-.status-badge.status-other {
+.status-badge.status-preparing {
     color: #17a2b8 !important;       
     border-color: #17a2b8 !important;
 }
 
-/* 讓標題區與 auth-container 左右對齊 */
+.status-badge.status-ready {
+    color: #fdba03 !important;       
+    border-color: #fdba03 !important;
+}
+
 .order-page-wrapper {
   max-width: 500px;
   margin: 8rem auto 0 auto; 
   padding: 0 1rem;
 }
 
-/* 標題列間距修正 */
 .order-details-heading {
   font-size: 2rem;
   color: white;
 }
 
-/* 調整 auth-container 使其與標題寬度一致 */
 .auth-container {
   width: 100%;
   box-sizing: border-box;
 }
 
-/* 防止 Chrome autofill 變藍底 */
 input:-webkit-autofill,
 textarea:-webkit-autofill,
 select:-webkit-autofill {
@@ -152,7 +153,6 @@ select:-webkit-autofill {
     0 0 0px 1000px #333 inset !important;
 }
 
-/* 針對 focus, hover, active 狀態同樣覆蓋 */
 input:-webkit-autofill:focus,
 textarea:-webkit-autofill:focus,
 select:-webkit-autofill:focus,
@@ -168,3 +168,85 @@ select:-webkit-autofill:hover {
     0 0 0px 1000px #333 inset !important;
 }
 
+/* 下拉選單 */
+.dropdown {
+  margin-top: 10px;
+  border: 1px solid white;
+  background-color: #333;
+  box-shadow: inset 0 0 25px black;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  text-align: left;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  font-size: 1rem;
+  width: 100%;
+  height: 40px;
+  max-width: 100%; 
+  border-radius: 5px;
+}
+
+.dropdown .arrow {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.dropdown .selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 21;
+  height: 100%;
+}
+
+.dropdown.active {
+  background-color: #333;
+  box-shadow: 0 0 10px white, inset 0 0 25px black !important;
+}
+
+.dropdown .options {
+  border-top: none;
+  border: 1px solid white;
+  position: absolute;
+  width: 100%;
+  top: 100%;
+  left: 0;
+  background-color: #222;
+  z-index: 100;
+  display: none;
+}
+
+.dropdown .option {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #444;
+  text-align: left;
+}
+
+.dropdown .option:last-child {
+  border-bottom: none;
+}
+
+.dropdown .option:hover {
+  outline: 2px solid yellow;
+  transition: background 0.3s;
+}
+
+.dropdown .option.disabled:hover {
+  outline: none; 
+}
+
+.dropdown .option.disabled {
+  color: gray;
+  cursor: not-allowed;
+}
+
+/* 日曆圖標顏色 */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(48%) sepia(13%) saturate(320%) hue-rotate(130deg) brightness(95%) contrast(80%); 
+  cursor: pointer;
+}

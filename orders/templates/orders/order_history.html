@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}ORDER HISTORY - Our restaurant{% endblock %}
+{% block title %}ORDER HISTORY - Pomodoro House{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/table.css">
@@ -12,25 +12,28 @@
 <div class="container mt-5">
   <h1 class="mb-4">Your Order History</h1>
 
-  {% if orders %}
+{% if orders %}
   <div class="list-group shadow-sm">
     {% for order in orders %}
-    <a href="{% url 'order_detail' order.id %}" class="list-group-item list-group-item-action flex-column align-items-start rounded">
-      <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">Order #{{ order.id }}</h5>
-        <small class="text-muted">{{ order.created_at|date:"F d, Y" }}</small>
-      </div>
-      <p class="mb-1">
-        Total: <strong class="text-white">${{ order.total_price|floatformat:2 }}</strong>
-        - Status:
-        <span class="status-badge 
-                    {% if order.status == 'completed' %}status-completed
-                    {% elif order.status == 'pending' %}status-pending
-                    {% elif order.status == 'cancelled' %}status-cancelled
-                    {% else %}status-other{% endif %}">
-          {{ order.get_status_display }}
-        </span>
-      </p>
+      <a href="{% url 'order_detail' order.id %}" class="list-group-item list-group-item-action flex-column align-items-start rounded">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">Order #{{ order.id }}</h5>
+          <small class="text-muted">{{ order.created_at|date:"F d, Y" }}</small>
+        </div>
+
+        <p class="mb-1">
+          Total: <strong class="text-white">${{ order.total_price|floatformat:2 }}</strong>
+          - Status:
+          <span class="status-badge 
+            {% if order.status == 'completed' %}status-completed
+            {% elif order.status == 'pending' %}status-pending
+            {% elif order.status == 'cancelled' %}status-cancelled
+            {% elif order.status == 'ready' %}status-ready
+            {% elif order.status == 'preparing' %}status-preparing
+            {% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </p>
 
       <small class="text-muted">
         {{ order.items.count }} item(s).

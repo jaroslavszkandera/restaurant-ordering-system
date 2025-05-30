@@ -4,7 +4,6 @@ h1.mb-4 {
     margin-bottom: 3rem;
 }
 
-/* 增加每筆訂單之間的間距 */
 .list-group-item {
   margin-bottom: 2rem !important;
   padding: 1rem 1.25rem;
@@ -13,7 +12,6 @@ h1.mb-4 {
   border: 1px solid white !important;
 }
 
-/* 讓第一筆訂單距離標題遠一點 */
 .list-group .list-group-item:first-child {
   margin-top: 3rem ;
 }

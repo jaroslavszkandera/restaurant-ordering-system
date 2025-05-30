@@ -1,5 +1,4 @@
 $(document).ready(function () {
-  // Add-to-cart form submission
   $('.add-to-cart-form').on('submit', function (e) {
     e.preventDefault();
     let form = $(this);
@@ -69,7 +68,6 @@ $(document).ready(function () {
       type: 'GET',
       success: function (data) {
         $('#menu-items').html($(data).find('#menu-items').html());
-        // Re-bind add-to-cart forms
         $('.add-to-cart-form').off('submit').on('submit', function (e) {
           e.preventDefault();
           let form = $(this);
@@ -124,7 +122,6 @@ $(document).ready(function () {
             }
           });
         });
-        // Adjust card content after menu items update
         adjustCardContent();
       },
       error: function () {
@@ -143,17 +140,15 @@ $(document).ready(function () {
     $('#floating-category-menu').toggleClass('show');
   });
 
-  // Close floating menu when a category is clicked
   $('#floating-category-menu').on('click', 'a', function () {
     $('#floating-category-menu').removeClass('show');
   });
 });
 
-// 點擊選單外區域時關閉浮動選單
 $(document).on('click', function (event) {
   const $menu = $('#floating-category-menu');
   const $toggleBtn = $('#floating-menu-btn');
-  // 如果點擊的不是選單本身、也不是 toggle 按鈕，則關閉
+
   if (!$menu.is(event.target) && $menu.has(event.target).length === 0 &&
       !$toggleBtn.is(event.target) && $toggleBtn.has(event.target).length === 0) {
     $menu.removeClass('show');
@@ -180,8 +175,8 @@ window.scrollCategories = function(direction) {
   const visibleCount = Math.floor(wrapper.offsetWidth / avgBtnWidth);
   const maxScrollIndex = Math.max(0, btns.length - visibleCount);
 
-  const isMobile = window.innerWidth <= 768; // 判斷裝置大小
-  const scrollStep = isMobile ? 1 : 3;       // 手機滑1個、桌機滑2個
+  const isMobile = window.innerWidth <= 768; 
+  const scrollStep = isMobile ? 1 : 3;       
 
   if ((direction < 0 && scrollIndex <= 0) || (direction > 0 && scrollIndex >= maxScrollIndex)) {
     return;
@@ -204,13 +199,10 @@ window.scrollCategories = function(direction) {
     rightBtn.classList.toggle('disabled', scrollIndex >= maxScrollIndex);
   }
 
-  // optional debug:
-  // console.log({ scrollIndex, scrollOffset, avgBtnWidth, visibleCount, maxScrollIndex });
 };
 
-// Fit text to container width (strictly two lines, shrink if needed)
 function fitTextToWidth(el) {
-  const maxHeight = el.clientHeight; // h5 已設定 height
+  const maxHeight = el.clientHeight;
   let fontSize = parseFloat(getComputedStyle(el).fontSize);
   const minFontSize = 12;
   const lineHeight = 1.2;
@@ -230,7 +222,6 @@ function fitTextToWidth(el) {
   return { fontSize };
 }
 
-// Adjust card content (font size, lines, and image dimensions)
 function adjustCardContent() {
   const cards = document.querySelectorAll('.menu-card');
   if (!cards.length) return;
@@ -242,10 +233,8 @@ function adjustCardContent() {
 
     if (!title || !img) return;
 
-    // Apply font scaling
     const { fontSize } = fitTextToWidth(title);
 
-    // 計算剩餘空間給圖片
     const cardLeftHeight = cardLeft.clientHeight;
     const gap = 5;
     const lineHeight = 1.2;
@@ -258,7 +247,6 @@ function adjustCardContent() {
   });
 }
 
-// Debounce function
 function debounce(func, wait) {
   let timeout;
   return function (...args) {

@@ -1,9 +1,8 @@
 from django.contrib import admin
-from .models import Category, MenuItem, Customer, Cart, CartItem, Order, OrderItem
+from .models import Category, MenuItem, Customer, Cart, CartItem, OrderItem
 from .models import ContactMessage
-from .models import Branch, Reservation
-from django.utils import timezone
-from django.db.models import Sum
+from .models import  Reservation
+from . import models
 from django.urls import reverse
 from django.utils.html import format_html
 from .models import BranchTimeSlotCapacity
@@ -108,11 +107,12 @@ class OrderItemInline(admin.TabularInline):
     subtotal_display.short_description = "Subtotal"
 
 
-@admin.register(Order)
+@admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "customer_link_display",
+        "pickup_branch", 
         "status",
         "created_at",
         "total_price_display",
@@ -145,6 +145,7 @@ class OrderAdmin(admin.ModelAdmin):
                 "fields": (
                     "id",
                     "customer_link_display",
+                    "pickup_branch",
                     "status",
                     "created_at",
                     "customer_contact_info",
@@ -187,7 +188,6 @@ class OrderAdmin(admin.ModelAdmin):
             .prefetch_related("items__menu_item")
         )
 
-# For debugging: Register Cart and CartItem
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ("id", "customer_display", "session_id", "created_at", "total_price")
@@ -239,19 +239,17 @@ class BranchTimeSlotCapacityInline(admin.TabularInline):
     verbose_name = "Time Slot Capacity"
     verbose_name_plural = "Per-Time Slot Capacity"
 
-@admin.register(Branch)
+@admin.register(models.Branch)
 class BranchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_active', 'schedule')
-    list_editable = ('is_active',)
+    list_display = ('name', 'is_reservable', 'is_orderable', 'schedule')
+    list_editable = ('is_reservable', 'is_orderable')
     inlines = [BranchTimeSlotCapacityInline]
 
     def schedule(self, obj):
-        # reverse 產生 URL，指向 urls.py 中定義的 'branch_schedule'
         url = reverse('branch_schedule')
-        # 在 admin 列表中顯示為超連結，點擊時開新視窗
         return format_html('<a href="{}" target="_blank" rel="noopener noreferrer">View</a>', url)
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ("name", "mobile", "branch", "date", "time_slot", "guests")
+    list_display = ("id","name", "mobile", "branch", "date", "time_slot", "guests")
     list_filter = ("branch", "date")

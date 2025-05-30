@@ -119,7 +119,7 @@
   align-items: center;
   width: 200px;
   backdrop-filter: blur(4px);
-  gap: 0; /* 不用 flex gap，改用 border */
+  gap: 0; 
 }
 
 .floating-category-menu.show {
@@ -129,13 +129,13 @@
 .floating-category-menu .category-btn {
   all: unset;
   display: flex;
-  align-items: center;       /* 垂直置中 */
-  justify-content: center;   /* 文字置中 */
+  align-items: center;       
+  justify-content: center;  
   width: 100%;
   text-align: center;
   color: white;
   font-size: 0.85rem;
-  height: 2.5rem;             /* 固定高度以對齊分隔線 */
+  height: 2.5rem;            
   cursor: pointer;
   position: relative;
   transition: font-weight 0.2s ease;
@@ -145,7 +145,6 @@
   font-weight: bold;
 }
 
-/* 分隔線 */
 .floating-category-menu .category-btn:not(:last-child)::after {
   content: '';
   position: absolute;
@@ -156,7 +155,6 @@
   background-color: rgba(200, 200, 200, 0.3);
 }
 
-/* 選中的 category 樣式 */
 .floating-category-menu .category-btn.active {
   font-weight: bold;
   border-radius: 0;

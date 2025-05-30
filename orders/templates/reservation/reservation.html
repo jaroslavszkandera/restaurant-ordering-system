@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
 
+{% block title %}Reservation - Pomodoro House{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/form.css">
 <link rel="stylesheet" href="/static/css/table.css">
@@ -21,7 +23,7 @@
       <!-- 用餐人數 -->
       <div class="mb-3">
         <label for="guests" class="form-label">Number of Guests</label>
-        <select name="guests" id="guests" class="form-control" required>
+        <select name="guests" id="guests" class="dropdown-original" style="display: none;" required>
           <option value="" disabled {% if not selected_guests %}selected{% endif %}>Select number of guests</option>
           {% for i in guest_range %}
             <option value="{{ i }}" {% if i|stringformat:"s" == selected_guests|stringformat:"s" %}selected{% endif %}>
@@ -29,7 +31,8 @@
             </option>
           {% endfor %}
         </select>
-        {% if error_guests %}<small class="text-danger d-block" style="font-size: 0.75rem;">{{ error_guests }}</small>{% endif %}
+        <div class="dropdown" id="guestsDropdown"></div>
+        {% if error_guests %}<small class="text-danger">{{ error_guests }}</small>{% endif %}
       </div>
 
       <!-- 用餐日期 -->
@@ -39,7 +42,7 @@
           type="date" 
           name="date" 
           id="date" 
-          class="form-control" 
+          class="form-control date-input" 
           min="{{ today|date:'Y-m-d' }}" 
           max="{{ two_months_later|date:'Y-m-d' }}" 
           value="{{ selected_date|date:'Y-m-d' }}" 
@@ -52,41 +55,41 @@
       <!-- 分店選擇 -->
       <div class="mb-3">
         <label for="branch" class="form-label">Branch</label>
-        <select name="branch" id="branch" class="form-control" required>
+        <select name="branch" id="branch" class="dropdown-original" style="display: none;" required>
           <option value="" disabled {% if not selected_branch_id %}selected{% endif %}>Select branch</option>
           {% for branch in branches %}
             {% with branch_availability|get_item:branch.id as avail %}
               {% if avail and not avail.disabled %}
-              <option value="{{ branch.id }}"
-                {% if branch.id|stringformat:"s" == selected_branch_id|stringformat:"s" %}selected{% endif %}>
-                {{ branch.name }}
-              </option>
+                <option value="{{ branch.id }}"
+                  {% if branch.id|stringformat:"s" == selected_branch_id|stringformat:"s" %}selected{% endif %}>
+                  {{ branch.name }}
+                </option>
               {% endif %}
             {% endwith %}
           {% endfor %}
         </select>
-        {% if error_branch %}<small class="text-danger d-block" style="font-size: 0.75rem;">{{ error_branch }}</small>{% endif %}
+        <div class="dropdown" id="branchDropdown"></div>
+        {% if error_branch %}<small class="text-danger">{{ error_branch }}</small>{% endif %}
       </div>
 
       <!-- 用餐時段 -->
       <div class="mb-3">
         <label for="time_slot" class="form-label">Time Slot</label>
-        <select name="time_slot" id="time_slot" class="form-control" required>
+        <select name="time_slot" id="time_slot" class="dropdown-original" style="display: none;" required>
           {% if available_time_slots %}
             {% for slot in available_time_slots %}
-              <option value="{{ slot.time|time:"H:i" }}"
-                {% if not slot.available %}disabled style="color:gray;"{% endif %}
-                {% if slot.time|time:"H:i" == request.GET.time_slot %}selected{% endif %}>
-                {{ slot.time_display }} 
+              <option value="{{ slot.time|time:'H:i' }}"
+                {% if not slot.available %}disabled{% endif %}
+                {% if slot.time|time:'H:i' == request.GET.time_slot %}selected{% endif %}>
+                {{ slot.time_display }}
               </option>
             {% endfor %}
           {% else %}
             <option value="" disabled>No time slots configured</option>
           {% endif %}
         </select>
-        {% if error_time_slot %}
-          <small class="text-danger d-block" style="font-size: 0.75rem;">{{ error_time_slot }}</small>
-        {% endif %}
+        <div class="dropdown" id="timeSlotDropdown"></div>
+        {% if error_time_slot %}<small class="text-danger">{{ error_time_slot }}</small>{% endif %}
       </div>
 
       <!-- 姓名 -->
@@ -113,77 +116,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const guestsInput = document.getElementById('guests');
-    const dateInput = document.getElementById('date');
-    const branchInput = document.getElementById('branch');
-    const timeSlotSelect = document.getElementById('time_slot');
-
-    async function updateTimeSlots() {
-      const guests = guestsInput.value;
-      const date = dateInput.value;
-      const branch = branchInput.value;
-
-      // 顯示 loading 狀態
-      timeSlotSelect.innerHTML = `<option disabled selected>Loading...</option>`;
-      timeSlotSelect.value = '';
-
-      if (!guests || !date || !branch) {
-        timeSlotSelect.innerHTML = `<option value="" disabled selected>Please select all fields</option>`;
-        return;
-      }
-
-      const params = new URLSearchParams({
-        guests: guests,
-        date: date,
-        branch: branch
-      });
-
-      try {
-        const res = await fetch(`/api/fetch_time_slots/?${params.toString()}`);
-        const data = await res.json();
-
-        timeSlotSelect.innerHTML = ''; // 清空選單
-
-        if (!data.slots || data.slots.length === 0) {
-          timeSlotSelect.innerHTML = `<option value="" disabled>No available time slots</option>`;
-          return;
-        }
-
-        for (const slot of data.slots) {
-          const option = document.createElement('option');
-          option.value = slot.time;
-          option.textContent = slot.display;
-          if (!slot.available) {
-            option.disabled = true;
-            option.style.color = 'gray';
-          }
-          timeSlotSelect.appendChild(option);
-        }
-
-        // 預設選第一個可用時段
-        const firstAvailable = [...timeSlotSelect.options].find(o => !o.disabled);
-        if (firstAvailable) {
-          timeSlotSelect.value = firstAvailable.value;
-        }
-
-      } catch (err) {
-        console.error("Failed to load time slots:", err);
-        timeSlotSelect.innerHTML = `<option value="" disabled>Error loading slots</option>`;
-      }
-    }
-
-    // 綁定變更事件
-    guestsInput.addEventListener('change', updateTimeSlots);
-    dateInput.addEventListener('change', updateTimeSlots);
-    branchInput.addEventListener('change', function () {
-      updateTimeSlots();
-    });
-
-    // 頁面載入後也執行一次
-    updateTimeSlots();
-  });
-</script>
-
+<script src="/static/js/reservation.js"></script>
 {% endblock %}

@@ -2,12 +2,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
-import uuid
-
-
 
 class Category(models.Model):
-
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
@@ -87,6 +83,13 @@ class Order(models.Model):
     )
     special_instructions = models.TextField(blank=True)
 
+    pickup_branch = models.ForeignKey(
+        "orders.Branch",
+        on_delete=models.PROTECT,
+        related_name="orders",
+        verbose_name="Pickup Branch"
+    )
+
     def __str__(self):
         return f"Order #{self.id} by {self.customer.name}"
 
@@ -131,7 +134,9 @@ class Branch(models.Model):
     )
     address = models.TextField()
     phone = models.CharField(max_length=20)
-    is_active = models.BooleanField(default=True)
+    
+    is_reservable = models.BooleanField(default=True, verbose_name="Reservable")
+    is_orderable = models.BooleanField(default=False, verbose_name="Orderable")
 
     map_embed_html = models.TextField(blank=True)
 

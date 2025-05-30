@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Reservation History - Pomodoro House{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/table.css">
+<link rel="stylesheet" href="/static/css/form.css">
+<link rel="stylesheet" href="/static/css/history.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="mb-4">Your Reservation History</h1>
+
+  {% if reservations %}
+    <div class="list-group shadow-sm">
+      {% for r in reservations %}
+        <a href="{% url 'reservation_detail' r.id %}" class="list-group-item list-group-item-action flex-column align-items-start rounded">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Reservation #{{ r.id }}</h5>
+            <small class="text-muted">{{ r.created_at|date:"F d, Y" }}</small>
+          </div>
+          <p class="mb-1">
+            Guests: {{ r.guests }} |
+            Branch: {{ r.branch.name }} |
+            Time: {{ r.time_slot|time:"H:i" }}
+          </p>
+          <small class="text-muted">Name: {{ r.name }} | Mobile: {{ r.mobile }}</small>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center py-4">
+      <h4><i class="fas fa-info-circle me-2"></i>No Reservations Yet</h4>
+      <p class="lead mb-0">You haven't made any reservations yet.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
