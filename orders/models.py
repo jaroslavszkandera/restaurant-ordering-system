@@ -176,6 +176,7 @@ class Reservation(models.Model):
     guests = models.PositiveIntegerField()
     name = models.CharField(max_length=100)
     mobile = models.CharField(max_length=10)
+    email = models.EmailField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):

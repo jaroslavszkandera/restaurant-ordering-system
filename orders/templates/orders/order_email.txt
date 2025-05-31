@@ -1,0 +1,22 @@
+Dear {{ customer.name }},
+
+Thank you for your order. Here are your order details:
+
+Branch:
+Name: {{ branch.name }}
+Address: {{ branch.address }}
+Phone: {{ branch.phone }}
+
+Order Items:
+{% for item in order_items %}
+- {{ item.menu_item.name }} x {{ item.quantity }} - ${{ item.price|floatformat:2 }}
+{% endfor %}
+
+Total: ${{ total_price|floatformat:2 }}
+
+Special Instructions: {{ special_instructions|default:"None" }}
+
+We will notify you once your order is ready for pickup.
+
+Best regards,
+Pomodoro House

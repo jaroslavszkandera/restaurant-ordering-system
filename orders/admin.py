@@ -251,5 +251,5 @@ class BranchAdmin(admin.ModelAdmin):
 
 @admin.register(Reservation)
 class ReservationAdmin(admin.ModelAdmin):
-    list_display = ("id","name", "mobile", "branch", "date", "time_slot", "guests")
+    list_display = ("id","name", "mobile", 'email', "branch", "date", "time_slot", "guests")
     list_filter = ("branch", "date")

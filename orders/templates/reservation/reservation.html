@@ -108,6 +108,16 @@
       {% endif %}
       <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">e.g., 0911222333.</small>
 
+      <!-- Email -->
+      <label for="id_email" class="form-label mb-1">Email <span class="text-white">*</span></label>
+      <input type="text" id="id_email" name="email" class="form-control mb-1" value="{{ email|default:'' }}">
+      {% if error_email %}
+        <small class="text-danger d-block" style="font-size: 0.75rem;">{{ error_email }}</small>
+      {% endif %}
+      <small class="text-muted mb-3 d-block" style="font-size: 0.75rem;">
+        Enter a valid email address including '@' and domain (e.g., user@example.com).
+      </small>
+      
       <!-- 提交按鈕 -->
       <button type="submit" class="btn custom-login-btn w-100">Submit Reservation</button>
     </form>

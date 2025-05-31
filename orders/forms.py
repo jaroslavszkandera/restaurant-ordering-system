@@ -175,4 +175,4 @@ class ContactForm(forms.Form):
 class ReservationForm(forms.ModelForm):
     class Meta:
         model = Reservation
-        fields = ['guests', 'date', 'branch', 'time_slot', 'name', 'mobile']
+        fields = ['guests', 'date', 'branch', 'time_slot', 'name', 'mobile', 'email']

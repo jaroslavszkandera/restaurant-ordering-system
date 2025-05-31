@@ -1,0 +1,17 @@
+Dear {{ reservation.name }},
+
+Thank you for your reservation at "Pomodoro House". Here are your reservation details:
+
+- Date: {{ reservation.date }}
+- Time: {{ reservation.time_slot|time:'H:i' }}
+- Guests: {{ reservation.guests }}
+- Branch: {{ reservation.branch.name }}
+- Branch Address: {{ reservation.branch.address }}
+- Branch Phone: {{ reservation.branch.phone }}
+
+If you have any questions or need to make changes, feel free to contact us.
+
+We look forward to serving you!
+
+Best regards,  
+Pomodoro House

@@ -13,6 +13,7 @@
   <div class="auth-container">
     <p><strong>Name:</strong> {{ reservation.gender }} {{ reservation.name }}</p>
     <p><strong>Phone:</strong> {{ reservation.mobile }}</p>
+    <p><strong>Email:</strong> {{ reservation.email }}</p>
     <p><strong>Date:</strong> {{ reservation.date }}</p>
     <p><strong>Time:</strong> 
       {% if reservation.time_slot|stringformat:"H:i" == "12:00" %}

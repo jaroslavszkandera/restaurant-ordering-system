@@ -141,3 +141,13 @@ LOGIN_URL = "login"
 
 # Session settings - 2 weeks expiry
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 14  # 14 days in seconds
+
+
+# email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'pomodorohouse331@gmail.com'
+EMAIL_HOST_PASSWORD = 'tvnxdofsjqmdidar'
+DEFAULT_FROM_EMAIL = 'Pomodoro House <pomodorohouse331@gmail.com>'

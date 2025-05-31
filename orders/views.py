@@ -8,6 +8,11 @@ from django.db.models import F
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from .forms import ContactForm
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.core.mail import send_mail
 from .models import ContactMessage
 from .models import Branch, Reservation
 from datetime import timedelta, time, datetime
@@ -280,6 +285,30 @@ def checkout(request):
                     price=cart_item.menu_item.price,
                 )
 
+            # 寄送 Email
+            order_items = order.items.all()
+            branch = order.pickup_branch
+            customer = final_customer
+            total_price = sum(item.price * item.quantity for item in order_items)
+
+            email_subject = f"Pomodoro House - Order Confirmation"
+            email_body = render_to_string("orders/order_email.txt", {
+                "customer": customer,
+                "branch": branch,
+                "order_items": order_items,
+                "special_instructions": order.special_instructions,
+                "total_price": total_price,
+            })
+
+            send_mail(
+                email_subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,
+                [customer.email],
+                fail_silently=False,
+            )
+
+            # 清空購物車
             cart.items.all().delete()
             if cart.session_id and not cart.customer:
                 cart.delete()
@@ -613,9 +642,11 @@ def reservation(request):
     branches = Branch.objects.filter(is_reservable=True)
 
     full_name = ""
+    email = ""
     if request.user.is_authenticated:
         full_name = f"{request.user.first_name} {request.user.last_name}".strip()
-
+        email = request.user.email or ""
+    
     if request.method == 'POST':
         branch_id = request.POST.get('branch')
         date_str = request.POST.get('date')
@@ -623,6 +654,7 @@ def reservation(request):
         guests_str = request.POST.get('guests')
         name = request.POST.get('name') or full_name
         mobile = request.POST.get('mobile')
+        email = request.POST.get('email') or email
 
         field_errors = {}
         is_valid = True
@@ -671,6 +703,13 @@ def reservation(request):
             field_errors['error_mobile'] = "Enter a valid 10-digit phone number."
             is_valid = False
 
+        # 驗證email
+        try:
+            validate_email(email)
+        except ValidationError:
+            field_errors['error_email'] = "Enter a valid email address."
+            is_valid = False
+
         # 再次確認時段是否仍可預約
         if is_valid:
             slots = get_time_slots(branch, date, guests)
@@ -688,7 +727,22 @@ def reservation(request):
                     guests=guests,
                     name=name.strip(),
                     mobile=mobile,
+                    email=email.strip(),
                 )
+
+                # 寄送預約成功 email
+                subject = 'Your Reservation at Pomodoro House'
+                message = render_to_string('reservation/reservation_email.txt', {
+                    'reservation': reservation_obj
+                })
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [reservation_obj.email],
+                    fail_silently=False,
+                )    
+
                 return redirect('reservation_confirmation', reservation_obj.id)
             except Exception as e:
                 print("Reservation creation error:", e)
@@ -712,6 +766,7 @@ def reservation(request):
             'selected_guests': guests_str,
             'name': name,
             'mobile': mobile,
+            'email': email,
             **field_errors,
         })
 
@@ -757,8 +812,8 @@ def reservation(request):
             'selected_branch_id': selected_branch_id,
             'selected_guests': selected_guests,
             'name': full_name,
+            'email': email,
         })
-
 
 def reservation_confirmation(request, id):
     reservation = get_object_or_404(Reservation, pk=id)
