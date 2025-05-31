@@ -25,6 +25,7 @@ class MenuItem(models.Model):
     )
     image = models.ImageField(upload_to="menu_items/", blank=True, null=True)
     available = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} (${self.price})"

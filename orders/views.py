@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import send_mail
 from .models import ContactMessage
+import random
 from .models import Branch, Reservation
 from datetime import timedelta, time, datetime
 from django.utils import timezone
@@ -98,12 +99,15 @@ def index(request):
 def menu(request, category_id=None):
     """Display menu items, optionally filtered by category."""
     categories = Category.objects.all()
-    menu_items = MenuItem.objects.filter(available=True)
 
-    if category_id:
+    if category_id == "featured":
+        menu_items = MenuItem.objects.filter(available=True, is_featured=True)
+        category = {'name': 'Featured'}
+    elif category_id:
         category = get_object_or_404(Category, id=category_id)
-        menu_items = menu_items.filter(category=category)
+        menu_items = MenuItem.objects.filter(available=True, category=category)
     else:
+        menu_items = MenuItem.objects.filter(available=True)
         category = None
 
     return render(
@@ -115,6 +119,49 @@ def menu(request, category_id=None):
             "menu_items": menu_items,
         },
     )
+
+@require_POST
+@transaction.atomic
+def add_random_to_cart(request):
+    """Selects a random available menu item and adds it to the cart."""
+    cart = get_or_create_cart(request)
+    available_items = list(MenuItem.objects.filter(available=True))
+
+    if not available_items:
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "No items available to choose from at the moment.",
+            },
+            status=404,
+        )
+
+    random_item = random.choice(available_items)
+    quantity = 1
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart, menu_item=random_item, defaults={"quantity": quantity}
+    )
+
+    if not created:
+        cart_item.quantity = F("quantity") + quantity
+        cart_item.save()
+
+    cart_item.refresh_from_db()
+    cart.refresh_from_db()
+
+    messages.success(
+        request, f"Surprise! {random_item.name} added to cart!"
+    )  # Server-side message
+
+    return JsonResponse({
+        "status": "success",
+        "message": f"Surprise! '{random_item.name}' added to cart!",
+        "cart_item_count": cart.items.count(),
+        "cart_total_quantity": sum(item.quantity for item in cart.items.all()),
+        "cart_total_price": float(cart.total_price()),
+        "added_item_name": random_item.name,
+    })
 
 
 @transaction.atomic

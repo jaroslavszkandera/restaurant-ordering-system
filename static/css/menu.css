@@ -86,15 +86,16 @@
 .floating-menu-btn {
   position: fixed;
   bottom: 1rem;
-  right: 1rem;
-  width: 40px;
-  height: 40px;
+  right: 1.5rem;
+  width: 50px;
+  height: 50px;
   background-color: #222;
   color: white;
   border: none;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 1.3rem;
   z-index: 999;
+  display: block;
 }
 
 .floating-menu-btn:hover {
@@ -102,15 +103,11 @@
   transition: background 0.3s;
 }
 
-.floating-menu-btn {
-  display: block;
-}
-
 .floating-category-menu {
   display: none;
   position: fixed;
-  bottom: 50px;
-  right: 1rem;
+  bottom: 75px;
+  right: 1.5rem;
   background: rgba(50, 50, 50, 0.9);
   padding: 0.5rem 0;
   border-radius: 1rem;
@@ -176,9 +173,10 @@
   display: flex;
   background-color: transparent;
   border-radius: 1rem;
-  overflow: hidden;
+  overflow: visible;
   padding: 1.1rem;
   box-sizing: border-box;
+  align-items: center;
 }
 
 .card-divider {
@@ -419,4 +417,60 @@
     column-gap: 2rem;
     row-gap: 2rem;
   }
+}
+
+.crown-icon {
+  position: absolute;
+  width: 1.4em;
+  height: 1.4em;
+  top: 0rem;
+  left: 0rem;
+  font-size: 2rem;
+  transform: rotate(-20deg);
+  z-index: 10;
+}
+
+.random-dish-btn {
+  position: fixed;
+  bottom: 3.2rem;
+  right: 1.2rem;
+  display: flex; 
+  flex-direction: column; 
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  z-index: 10;
+  width: 50px; 
+  height: 70px; 
+  padding: 0; 
+}
+
+.random-dish-img {
+  width: 40px; 
+  height: 40px;
+  z-index: 10; 
+  transition: transform 0.3s ease; 
+  position: relative; 
+}
+
+.circle-bottom {
+  position: fixed;
+  bottom: 4.5rem;
+  right: 1.5rem;
+  width: 50px; 
+  height: 50px;
+  background-color: #222; 
+  border: none;
+  border-radius: 50%;
+  z-index: 1; 
+  transition: background-color 0.3s ease; 
+}
+
+.random-dish-btn:hover .random-dish-img {
+  transform: scale(1.2); 
+}
+
+.random-dish-btn:hover .circle-bottom {
+  background-color: #444; 
 }

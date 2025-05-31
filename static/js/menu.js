@@ -1,4 +1,77 @@
 $(document).ready(function () {
+  $('#random-dish-btn').on('click', function () {
+    let $button = $(this);
+    let originalHtml = $button.html();
+    $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>');
+
+    $.ajax({
+      type: 'POST',
+      url: ADD_RANDOM_TO_CART_URL,
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      success: function (data) {
+        if (data.status === 'success') {
+          Swal.fire({
+            toast: true,
+            icon: 'success',
+            title: 'Surprise!',
+            html: `${data.added_item_name || 'Random dish'} added to your cart!`,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+          if (data.cart_total_quantity !== undefined) {
+            $('.cart-count').text(data.cart_total_quantity);
+          }
+        } else {
+          Swal.fire({
+            toast: true,
+            icon: 'error',
+            title: 'Oops!',
+            html: data.message || 'Could not add random dish.',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+        }
+      },
+      error: function (xhr) {
+        let errorMessage = 'Something went wrong. Please try again.';
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMessage = xhr.responseJSON.message;
+        } else if (xhr.status === 404) {
+          errorMessage = 'No items available to choose from right now.';
+        }
+        Swal.fire({
+          toast: true,
+          icon: 'error',
+          title: 'Oops...',
+          text: errorMessage,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3500
+        });
+      },
+      complete: function () {
+        $button.prop('disabled', false).html(originalHtml);
+      }
+    });
+  }); 
+  
+  const $btn = $('#random-dish-btn');
+  const $img = $btn.find('.random-dish-img');
+
+  const staticSrc = $img.attr('src');
+  const gifSrc = $img.data('gif');
+
+  $btn.on('mouseenter', function () {
+    $img.attr('src', gifSrc);
+  });
+
+  $btn.on('mouseleave', function () {
+    $img.attr('src', staticSrc);
+  });
+
+
   $('.add-to-cart-form').on('submit', function (e) {
     e.preventDefault();
     let form = $(this);
@@ -54,20 +127,37 @@ $(document).ready(function () {
     });
   });
 
-  // Category button clicks
-  $('.category-list').on('click', '.category-btn', function (e) {
-    e.preventDefault();
-    let $btn = $(this);
-    let url = $btn.data('href');
+function handleCategoryClick($btn) {
+    const url = $btn.data('href');
+    const category = $btn.data('category');
 
     $('.category-btn').removeClass('active');
-    $btn.addClass('active');
+    $(`.category-btn[data-category="${category}"]`).addClass('active');
 
     $.ajax({
       url: url,
       type: 'GET',
       success: function (data) {
+
         $('#menu-items').html($(data).find('#menu-items').html());
+        
+        const $categoryInfo = $(data).find('#category-info');
+        const categoryName = $categoryInfo.data('category-name');
+        const isEmpty = $categoryInfo.data('is-empty') === true;
+
+        $('#category-info').attr('data-category-name', categoryName);
+        $('#category-info').attr('data-is-empty', isEmpty);
+
+        if (categoryName === 'Featured' && isEmpty) {
+          const emptyMessage = `
+            <div class="text-center pyóis-4" style="color: white; font-size: 1.2rem; line-height: 1.8;">
+              <p style="margin: 0;">New items coming soon.</p>
+              <p style="margin: 0;">Stay tuned!</p>
+            </div>
+          `;
+          $('#menu-items').html(emptyMessage);
+        }
+
         $('.add-to-cart-form').off('submit').on('submit', function (e) {
           e.preventDefault();
           let form = $(this);
@@ -132,27 +222,34 @@ $(document).ready(function () {
         });
       }
     });
+  }
 
+$('.category-list').on('click', '.category-btn', function (e) {
+    e.preventDefault();
+    handleCategoryClick($(this));
   });
 
-  // Floating category menu toggle
-  $('#floating-menu-btn').on('click', function () {
+$('#floating-menu-btn').on('click', function () {
     $('#floating-category-menu').toggleClass('show');
   });
 
-  $('#floating-category-menu').on('click', 'a', function () {
+$('#floating-category-menu').on('click', '.category-btn', function (e) {
+    e.preventDefault();
+    handleCategoryClick($(this));
     $('#floating-category-menu').removeClass('show');
   });
-});
+
 
 $(document).on('click', function (event) {
-  const $menu = $('#floating-category-menu');
-  const $toggleBtn = $('#floating-menu-btn');
+    const $menu = $('#floating-category-menu');
+    const $toggleBtn = $('#floating-menu-btn');
 
-  if (!$menu.is(event.target) && $menu.has(event.target).length === 0 &&
-      !$toggleBtn.is(event.target) && $toggleBtn.has(event.target).length === 0) {
-    $menu.removeClass('show');
-  }
+    if (!$menu.is(event.target) && $menu.has(event.target).length === 0 &&
+        !$toggleBtn.is(event.target) && $toggleBtn.has(event.target).length === 0) {
+      $menu.removeClass('show');
+    }
+  });
+
 });
 
 // Scroll functionality

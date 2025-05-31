@@ -8,10 +8,11 @@ urlpatterns = [
     # Main pages
     path("", views.index, name="index"),
     path("menu/", views.menu, name="menu"),
-    path("menu/category/<int:category_id>/", views.menu, name="menu_category"),
+    path("menu/category/<str:category_id>/", views.menu, name="menu_category"),
     # Cart and checkout
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
     path("cart/", views.view_cart, name="view_cart"),
+    path("cart/add-random/", views.add_random_to_cart, name="add_random_to_cart"),
     path(
         "cart/update_and_checkout/",
         views.update_cart_and_checkout,

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}MENU - Pomodoro House{% endblock %}
 
@@ -20,6 +21,10 @@
     <div class="category-list-wrapper overflow-hidden flex-grow-1">
       <div class="category-list d-flex">
         <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}" data-href="{% url 'menu' %}" data-category="all">ALL</a>
+        <a href="{% url 'menu_category' 'featured' %}"
+          class="category-btn {% if category.name == 'Featured' %}active{% endif %}"
+          data-href="{% url 'menu_category' 'featured' %}"
+          data-category="featured">Featured</a>       
         {% for cat_obj in categories %}
         <a href="{% url 'menu_category' cat_obj.id %}" class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}" data-href="{% url 'menu_category' cat_obj.id %}" data-category="{{ cat_obj.name|lower }}">
           {{ cat_obj.name }}
@@ -30,7 +35,11 @@
     <button class="scroll-btn right" onclick="scrollCategories(1)">→</button>
   </section>
 
-<!-- 右下角圓形按鈕 -->
+<!-- 右下角區域 -->
+<button id="random-dish-btn" class="random-dish-btn" title="Surprise me!">
+  <img src="{% static 'img/dice.png' %}" data-gif="{% static 'img/dice.gif' %}" alt="Random Dish" class="random-dish-img" />
+  <span class="circle-bottom"></span>
+</button>
 <button id="floating-menu-btn" class="floating-menu-btn">
   ☰
 </button>
@@ -38,62 +47,81 @@
 <!-- Hidden Category Menu -->
 <div id="floating-category-menu" class="floating-category-menu">
   <a href="{% url 'menu' %}" class="category-btn {% if not category %}active{% endif %}" data-category="all">ALL</a>
+  <a href="{% url 'menu_category' 'featured' %}" class="category-btn {% if category.name == 'Featured' %}active{% endif %}" data-href="{% url 'menu_category' 'featured' %}" data-category="featured">Featured</a>
   {% for cat_obj in categories %}
-    <a href="{% url 'menu_category' cat_obj.id %}"
-       class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}"
-       data-category="{{ cat_obj.name|lower }}">
-      {{ cat_obj.name }}
+    <a href="{% url 'menu_category' cat_obj.id %}" class="category-btn {% if category and category.id == cat_obj.id %}active{% endif %}" data-href="{% url 'menu_category' cat_obj.id %}" data-category="{{ cat_obj.name|lower }}">
+        {{ cat_obj.name }}
     </a>
   {% endfor %}
 </div>
 
-  {% if menu_items %}
-  <section id="menu-items" class="menu-grid mt-4">
-    {% for item in menu_items %}
-    <div class="menu-card">
-      <div class="card-left">
-        {% if item.image %}      
-        <div class="img-container">
-          <img src="{{ item.image.url }}" alt="{{ item.name }}">
-        </div>           
-        {% else %}
-        <i class="fas fa-utensils fa-3x text-muted"></i>
-        {% endif %}
-        <h5>{{ item.name }}</h5>
-      </div>
-      <div class="card-divider"></div>
-      <div class="card-right">
-        <div class="desc">{{ item.description|truncatechars:90 }}</div>
-        <div class="meta">
-          <span>${{ item.price }}</span>
-          <span class="badge bg-secondary">{{ item.category.name }}</span>
-        </div>
-        <form method="post" action="{% url 'add_to_cart' %}" class="footer add-to-cart-form">
-          {% csrf_token %}
-          <input type="hidden" name="menu_item_id" value="{{ item.id }}">
-          <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <input type="number" name="quantity" value="1" min="1" max="10">
-          <button type="submit" class="btn">＋</button>
-        </form>
-      </div>
-    </div>
-    {% endfor %}
-  </section>
-  {% else %}
-  <div class="alert alert-info text-center py-4">
-    <h4><i class="fas fa-info-circle me-2"></i>No Menu Items Found</h4>
-    <p class="mb-0">
-      {% if category %}
-      There are currently no items available in the <strong>{{ category.name }}</strong> category.
-      {% else %}
-      Our menu is currently empty. Please check back soon!
-      {% endif %}
-    </p>
+<div id="category-info" 
+       data-category-name="{% if category %}{{ category.name }}{% else %}All{% endif %}" 
+       data-is-empty="{% if not menu_items %}true{% else %}false{% endif %}" 
+       style="display: none;">
   </div>
-  {% endif %}
+
+  <section id="menu-items" class="menu-grid mt-4">
+    {% if menu_items %}
+      {% for item in menu_items %}
+      <div class="menu-card position-relative">
+        {% if item.is_featured %}
+          <img src="{% static 'img/yellow_tomato.png' %}" alt="Featured" class="crown-icon"/>
+        {% endif %}
+        <div class="card-left">
+          {% if item.image %}      
+          <div class="img-container">
+            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+          </div>           
+          {% else %}
+          <i class="fas fa-utensils fa-3x text-muted"></i>
+          {% endif %}
+          <h5>{{ item.name }}</h5>
+        </div>
+        <div class="card-divider"></div>
+        <div class="card-right">
+          <div class="desc">{{ item.description|truncatechars:90 }}</div>
+          <div class="meta">
+            <span>${{ item.price }}</span>
+            <span class="badge bg-secondary">{{ item.category.name }}</span>
+          </div>
+          <form method="post" action="{% url 'add_to_cart' %}" class="footer add-to-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="menu_item_id" value="{{ item.id }}">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input type="number" name="quantity" value="1" min="1" max="10">
+            <button type="submit" class="btn">＋</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      {% if category.name == 'Featured' %}
+      <div class="text-center py-4" style="color: white; font-size: 1.2rem; line-height: 1.8;">
+        <p style="margin: 0;">New items coming soon.</p>
+        <p style="margin: 0;">Stay tuned!</p>
+      </div>
+      {% else %}
+      <div class="alert alert-info text-center py-4">
+        <h4><i class="fas fa-info-circle me-2"></i>No Menu Items Found</h4>
+        <p class="mb-0">
+          {% if category %}
+          There are currently no items available in the <strong>{{ category.name }}</strong> category.
+          {% else %}
+          Our menu is currently empty. Please check back soon!
+          {% endif %}
+        </p>
+      </div>
+      {% endif %}
+    {% endif %}
+  </section>
 </main>
 {% endblock %}
 
 {% block extra_js %}
+<script>
+const ADD_RANDOM_TO_CART_URL = "{% url 'add_random_to_cart' %}";
+const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
 <script src="/static/js/menu.js"></script>
 {% endblock %}

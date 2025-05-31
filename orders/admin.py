@@ -66,10 +66,10 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "price", "available", "image_thumbnail")
+    list_display = ("name", "category", "price", "available", "image_thumbnail","is_featured")
     list_filter = ("category", "available")
     search_fields = ("name", "description", "category__name")
-    list_editable = ("price", "available")
+    list_editable = ("price", "available", "is_featured")
 
     def image_thumbnail(self, obj):
         if obj.image:
