@@ -8,10 +8,12 @@ from django.db.models import F
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from .forms import ContactForm
+from django.db.models import Count
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.utils.timezone import localtime
 from django.core.mail import send_mail
 from .models import ContactMessage
 import random
@@ -317,11 +319,22 @@ def checkout(request):
                 except Customer.DoesNotExist:
                     final_customer = Customer.objects.create(**customer_data_from_form)
 
+            time_slot_raw = form.cleaned_data["time_slot"]  # e.g., "2025-06-01|15:00:00"
+            try:
+                pickup_date_str, time_str = time_slot_raw.split("|")
+                pickup_date = datetime.strptime(pickup_date_str, "%Y-%m-%d").date()
+                pickup_time = datetime.strptime(time_str, "%H:%M:%S").time()
+            except ValueError:
+                messages.error(request, "Invalid time slot format.")
+                return redirect("checkout")
+
             order = Order.objects.create(
                 customer=final_customer,
                 status=Order.Status.PENDING,
                 special_instructions=form.cleaned_data.get("special_instructions", ""),
                 pickup_branch=form.cleaned_data["pickup_branch"],
+                pickup_date=pickup_date,
+                time_slot=pickup_time,
             )
 
             for cart_item in cart.items.all():
@@ -342,6 +355,7 @@ def checkout(request):
             email_body = render_to_string("orders/order_email.txt", {
                 "customer": customer,
                 "branch": branch,
+                "order": order,
                 "order_items": order_items,
                 "special_instructions": order.special_instructions,
                 "total_price": total_price,
@@ -371,7 +385,7 @@ def checkout(request):
             )
     else:
         initial_form_data = {}
-        if current_customer_instance:  
+        if current_customer_instance:
             initial_form_data["name"] = current_customer_instance.name
             initial_form_data["email"] = current_customer_instance.email
             initial_form_data["phone"] = current_customer_instance.phone
@@ -387,6 +401,69 @@ def checkout(request):
         },
     )
 
+def get_available_order_slots(request):
+    branch_id = request.GET.get('branch_id')
+    if not branch_id:
+        return JsonResponse({'options': [], 'error': 'Branch ID required'}, status=400)
+    
+    try:
+        branch = Branch.objects.get(id=branch_id)
+    except Branch.DoesNotExist:
+        return JsonResponse({'options': [], 'error': 'Branch not found'}, status=404)
+
+    now = timezone.now()  
+    end_time = now + timedelta(hours=24) 
+    options = []
+    found_slot = False
+
+    print(f"Current time: {now}, End time: {end_time}, Branch: {branch.name}")
+
+    slots = BranchTimeSlotCapacity.objects.filter(
+        branch=branch,
+        is_orderable=True
+    ).order_by('weekday', 'time_slot')
+
+    for slot in slots:
+        target_weekday = slot.weekday
+        current_weekday = now.weekday()
+        days_ahead = (target_weekday - current_weekday) % 7  
+        if days_ahead == 0 and slot.time_slot < now.time():
+            days_ahead = 7  
+        target_date = now + timedelta(days=days_ahead)
+        slot_datetime = timezone.make_aware(
+            timezone.datetime.combine(target_date.date(), slot.time_slot),
+            timezone.get_current_timezone()
+        )
+
+        if now <= slot_datetime <= end_time:
+            order_count = Order.objects.filter(
+                pickup_branch=branch,
+                pickup_date=target_date.date(),
+                time_slot=slot.time_slot
+            ).count()
+            
+            print(f"Slot: {slot.time_slot}, Weekday: {slot.weekday}, Target date: {target_date.date()}, Orders: {order_count}, Max Orderable: {slot.max_orderable}")
+
+            if order_count < slot.max_orderable:
+                month = str(target_date.month)  
+                day = str(target_date.day)      
+                slot_label = f"{month}/{day} {slot.time_slot.strftime('%H:%M')}"
+                options.append({
+                    'value': f"{target_date.date()}|{slot.time_slot}",
+                    'label': slot_label
+                })
+                found_slot = True
+                print(f"Added slot: {slot_label}")
+
+    if not found_slot:
+        print("No available slots found within 24 hours")
+        options = [{
+            'value': '',
+            'label': 'Welcome to order for tomorrow'
+        }]
+        return JsonResponse({'options': options}, status=200)
+
+    return JsonResponse({'options': options}, status=200)
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(

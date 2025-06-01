@@ -45,7 +45,7 @@
               <div id="customDropdownPickupUnauth" class="dropdown-select">
                 <div class="selected">
                   <span>Select a pickup location</span>
-                  <span class="arrow">▼</span>
+                  <span class="arrow">ᐯ</span>
                 </div>
                 <div class="options">
                   {% for choice in form.pickup_branch.field.queryset %}
@@ -54,12 +54,36 @@
                 </div>
               </div>
               {% if form.pickup_branch.errors %}
-                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                <small class="text-danger d-block" style="font-size: 0.75rem;">
                   {{ form.pickup_branch.errors|join:", " }}
                 </small>
               {% else %}
                 <small class="text-muted d-block" style="font-size: 0.75rem;">
                   Please select a pickup location.
+                </small>
+              {% endif %}
+            </div>
+
+            <!-- Time Slot -->
+            <div class="form-group mb-3">
+              <label for="{{ form.time_slot.id_for_label }}" class="form-label mb-1">
+                Time Slot <span class="text-white">*</span>
+              </label>
+              {{ form.time_slot }}
+              <div id="customDropdownTimeSlotUnauth" class="dropdown">
+                <div class="selected">
+                  <span id="selectedTextTimeSlot">Select a pickup time slot</span>
+                  <span class="arrow">ᐯ</span>
+                </div>
+                <div class="options"></div>
+              </div>
+              {% if form.time_slot.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.time_slot.errors|join:", " }}
+                </small>
+              {% else %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  Please select a pickup time slot.
                 </small>
               {% endif %}
             </div>
@@ -127,12 +151,36 @@
               <div id="customDropdown" class="dropdown"></div>
 
               {% if form.pickup_branch.errors %}
-                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                <small class="text-danger d-block" style="font-size: 0.75rem;">
                   {{ form.pickup_branch.errors|join:", " }}
                 </small>
               {% else %}
                 <small class="text-muted d-block" style="font-size: 0.75rem;">
                   Please select a pickup location.
+                </small>
+              {% endif %}
+            </div>
+
+            <!-- Time Slot -->
+            <div class="form-group mb-3">
+              <label for="{{ form.time_slot.id_for_label }}" class="form-label mb-1">
+                Time Slot <span class="text-white">*</span>
+              </label>
+              {{ form.time_slot }}
+              <div id="customDropdownTimeSlot" class="dropdown">
+                <div class="selected">
+                  <span id="selectedTextTimeSlot">Select a pickup time slot</span>
+                  <span class="arrow">ᐯ</span>
+                </div>
+                <div class="options"></div>
+              </div>
+              {% if form.time_slot.errors %}
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
+                  {{ form.time_slot.errors|join:", " }}
+                </small>
+              {% else %}
+                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                  Please select a pickup time slot.
                 </small>
               {% endif %}
             </div>

@@ -100,6 +100,12 @@ class CheckoutForm(forms.ModelForm):
         },
     )
 
+    time_slot = forms.CharField(
+        required=True,
+        widget=forms.Select(attrs={'class': 'dropdown-original d-none'}),
+        help_text='Please select a pickup time slot.'
+    )
+
     class Meta:
         model = Order
         fields = ["special_instructions"]

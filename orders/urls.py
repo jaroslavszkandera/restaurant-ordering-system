@@ -20,6 +20,7 @@ urlpatterns = [
     ),
     path("checkout/", views.checkout, name="checkout"),
     # Orders
+    path('get_available_order_slots/', views.get_available_order_slots, name='get_available_order_slots'),
     path("order/<int:order_id>/", views.order_detail, name="order_detail"),
     path(
         "order/<int:order_id>/confirmation/",

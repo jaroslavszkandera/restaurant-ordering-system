@@ -232,9 +232,9 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ('name', 'email', 'message')
 
 class BranchTimeSlotCapacityInline(admin.TabularInline):
-    model = BranchTimeSlotCapacity
+    model = models.BranchTimeSlotCapacity
     extra = 0  
-    fields = ('weekday', 'time_slot', 'max_capacity', 'available')
+    fields = ('weekday', 'time_slot', 'max_capacity', 'available', 'is_orderable', 'max_orderable')
     ordering = ('weekday', 'time_slot')
     verbose_name = "Time Slot Capacity"
     verbose_name_plural = "Per-Time Slot Capacity"

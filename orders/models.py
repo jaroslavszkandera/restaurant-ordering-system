@@ -2,6 +2,9 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
+from django.utils import timezone
+from datetime import timedelta
+from django.core.exceptions import ValidationError
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -76,26 +79,95 @@ class Order(models.Model):
         CANCELLED = "cancelled", "Cancelled"
 
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE, related_name="orders"
+        Customer, 
+        on_delete=models.CASCADE, 
+        related_name="orders",
+        verbose_name="Customer"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Created At",
+        help_text="Timestamp when the order was created"
+    )
     status = models.CharField(
-        max_length=20, choices=Status.choices, default=Status.PENDING
+        max_length=20, 
+        choices=Status.choices, 
+        default=Status.PENDING,
+        verbose_name="Status"
     )
-    special_instructions = models.TextField(blank=True)
-
+    special_instructions = models.TextField(
+        blank=True,
+        verbose_name="Special Instructions",
+        help_text="Optional special instructions for the order"
+    )
     pickup_branch = models.ForeignKey(
         "orders.Branch",
         on_delete=models.PROTECT,
         related_name="orders",
-        verbose_name="Pickup Branch"
+        verbose_name="Pickup Branch",
+        help_text="Branch where the order will be picked up"
     )
+    pickup_date = models.DateField(
+        verbose_name="Pickup Date",
+        help_text="The date for order pickup"
+    )
+    time_slot = models.TimeField(
+        verbose_name="Pickup Time Slot",
+        help_text="The time slot for order pickup"
+    )
+
+    def clean(self):
+        """Validate pickup date and time slot."""
+        if not self.pickup_date or not self.time_slot:
+            return  
+        
+        pickup_datetime = timezone.make_aware(
+            timezone.datetime.combine(self.pickup_date, self.time_slot),
+            timezone.get_current_timezone()
+        )
+        now = timezone.now()
+
+        if pickup_datetime < now:
+            raise ValidationError("Pickup date and time must be in the future.")
+
+        slot_exists = BranchTimeSlotCapacity.objects.filter(
+            branch=self.pickup_branch,
+            weekday=self.pickup_date.weekday(),
+            time_slot=self.time_slot,
+            is_orderable=True
+        ).exists()
+        if not slot_exists:
+            raise ValidationError(
+                "Selected time slot is not available or not orderable for this branch."
+            )
+
+        end_time = now + timedelta(hours=24)
+        if pickup_datetime > end_time:
+            raise ValidationError("Pickup time must be within 24 hours from now.")
+        
+        order_count = Order.objects.filter(
+            pickup_branch=self.pickup_branch,
+            pickup_date=self.pickup_date,
+            time_slot=self.time_slot
+        ).exclude(id=self.id).count()  
+        slot = BranchTimeSlotCapacity.objects.filter(
+            branch=self.pickup_branch,
+            weekday=self.pickup_date.weekday(),
+            time_slot=self.time_slot
+        ).first()
+        if slot and order_count >= slot.max_orderable:
+            raise ValidationError("Selected time slot is full.")
 
     def __str__(self):
         return f"Order #{self.id} by {self.customer.name}"
 
     def total_price(self):
         return sum(item.subtotal() for item in self.items.all())
+
+    class Meta:
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
+        ordering = ['-created_at']
 
 
 class OrderItem(models.Model):
@@ -161,6 +233,9 @@ class BranchTimeSlotCapacity(models.Model):
     time_slot = models.TimeField()
     max_capacity = models.PositiveIntegerField()
     available = models.BooleanField(default=True) # 是否可供預約
+    
+    is_orderable = models.BooleanField(default=True, verbose_name="Orderable")
+    max_orderable = models.PositiveIntegerField(default=10, verbose_name="Max Orderable")
     
     class Meta:
         unique_together = ('branch', 'weekday', 'time_slot')

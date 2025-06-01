@@ -45,6 +45,13 @@
             <p>
               <strong>Pickup Branch：</strong> {{ order.pickup_branch.name }}
             </p>
+            <p>
+              <strong>Pickup Date：</strong> {{ order.pickup_date }}
+            </p>
+            <p>
+               <strong>Time Slot：</strong> {{ order.time_slot|time:"h:i A" }}
+            </p>
+
 
             {% if order.customer %}
             <h5 class="mt-4">Customer Details:</h5>

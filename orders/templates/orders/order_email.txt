@@ -7,6 +7,9 @@ Name: {{ branch.name }}
 Address: {{ branch.address }}
 Phone: {{ branch.phone }}
 
+Pickup Date: {{ order.pickup_date }}
+Pickup Time Slot: {{ order.time_slot|time:"H:i" }}
+
 Order Items:
 {% for item in order_items %}
 - {{ item.menu_item.name }} x {{ item.quantity }} - ${{ item.price|floatformat:2 }}
@@ -16,7 +19,7 @@ Total: ${{ total_price|floatformat:2 }}
 
 Special Instructions: {{ special_instructions|default:"None" }}
 
-We will notify you once your order is ready for pickup.
+Kindly arrive at the branch during your selected pickup time. We appreciate your support!
 
 Best regards,
 Pomodoro House

@@ -1,4 +1,9 @@
 $(document).ready(function () {
+  const $btn = $('#random-dish-btn');
+  const $img = $btn.find('.random-dish-img');
+  const staticSrc = $img.attr('src');
+  const gifSrc = $img.data('gif');
+
   $('#random-dish-btn').on('click', function () {
     let $button = $(this);
     let originalHtml = $button.html();
@@ -53,22 +58,20 @@ $(document).ready(function () {
       },
       complete: function () {
         $button.prop('disabled', false).html(originalHtml);
+        const $newImg = $button.find('.random-dish-img');
+        if (!$button.is(':hover')) {
+          $newImg.attr('src', staticSrc);
+        }
       }
     });
-  }); 
-  
-  const $btn = $('#random-dish-btn');
-  const $img = $btn.find('.random-dish-img');
-
-  const staticSrc = $img.attr('src');
-  const gifSrc = $img.data('gif');
+  });
 
   $btn.on('mouseenter', function () {
-    $img.attr('src', gifSrc);
+    $btn.find('.random-dish-img').attr('src', gifSrc);
   });
 
   $btn.on('mouseleave', function () {
-    $img.attr('src', staticSrc);
+    $btn.find('.random-dish-img').attr('src', staticSrc);
   });
 
 
