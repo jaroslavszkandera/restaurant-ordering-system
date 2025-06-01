@@ -411,12 +411,11 @@ def get_available_order_slots(request):
     except Branch.DoesNotExist:
         return JsonResponse({'options': [], 'error': 'Branch not found'}, status=404)
 
-    now = timezone.now()  
-    end_time = now + timedelta(hours=24) 
-    options = []
-    found_slot = False
+    now = timezone.now()
+    end_time = now + timedelta(hours=24)
 
-    print(f"Current time: {now}, End time: {end_time}, Branch: {branch.name}")
+    today_slots = []
+    tomorrow_slots = []
 
     slots = BranchTimeSlotCapacity.objects.filter(
         branch=branch,
@@ -426,9 +425,9 @@ def get_available_order_slots(request):
     for slot in slots:
         target_weekday = slot.weekday
         current_weekday = now.weekday()
-        days_ahead = (target_weekday - current_weekday) % 7  
+        days_ahead = (target_weekday - current_weekday) % 7
         if days_ahead == 0 and slot.time_slot < now.time():
-            days_ahead = 7  
+            days_ahead = 7
         target_date = now + timedelta(days=days_ahead)
         slot_datetime = timezone.make_aware(
             timezone.datetime.combine(target_date.date(), slot.time_slot),
@@ -441,29 +440,28 @@ def get_available_order_slots(request):
                 pickup_date=target_date.date(),
                 time_slot=slot.time_slot
             ).count()
-            
-            print(f"Slot: {slot.time_slot}, Weekday: {slot.weekday}, Target date: {target_date.date()}, Orders: {order_count}, Max Orderable: {slot.max_orderable}")
 
             if order_count < slot.max_orderable:
-                month = str(target_date.month)  
-                day = str(target_date.day)      
-                slot_label = f"{month}/{day} {slot.time_slot.strftime('%H:%M')}"
-                options.append({
+                label = f"{target_date.month}/{target_date.day} {slot.time_slot.strftime('%H:%M')}"
+                option = {
                     'value': f"{target_date.date()}|{slot.time_slot}",
-                    'label': slot_label
-                })
-                found_slot = True
-                print(f"Added slot: {slot_label}")
+                    'label': label
+                }
+                if days_ahead == 0:
+                    today_slots.append(option)
+                else:
+                    tomorrow_slots.append(option)
 
-    if not found_slot:
-        print("No available slots found within 24 hours")
-        options = [{
+    all_slots = today_slots + tomorrow_slots
+
+    if not all_slots:
+        all_slots = [{
             'value': '',
             'label': 'Welcome to order for tomorrow'
         }]
-        return JsonResponse({'options': options}, status=200)
 
-    return JsonResponse({'options': options}, status=200)
+    return JsonResponse({'options': all_slots}, status=200)
+
 
 def order_confirmation(request, order_id):
     order = get_object_or_404(
@@ -642,6 +640,7 @@ def get_time_slots(branch, date, requested_guests=1):
     slots = []
     weekday = date.weekday()
 
+    # Opening hours logic
     if weekday < 5:
         opening_periods = [
             (time(11, 0), time(14, 30)),
@@ -652,8 +651,11 @@ def get_time_slots(branch, date, requested_guests=1):
             (time(11, 0), time(22, 30)),
         ]
 
-    now = datetime.now().astimezone()
+    now = timezone.localtime()
+    is_today = date == now.date()
+    current_time = now.time()
 
+    # Load time slot settings
     slot_settings = {
         s.time_slot: s for s in BranchTimeSlotCapacity.objects.filter(
             branch=branch,
@@ -668,10 +670,15 @@ def get_time_slots(branch, date, requested_guests=1):
         while dt + timedelta(minutes=30) <= closing_dt:
             slot_time = dt.time()
 
+            # 🔴 Skip past slots if date is today
+            if is_today and slot_time <= current_time:
+                dt += timedelta(minutes=30)
+                continue
+
             setting = slot_settings.get(slot_time)
             if not setting:
                 dt += timedelta(minutes=30)
-                continue  
+                continue
 
             if not setting.available:
                 available = False
@@ -694,10 +701,6 @@ def get_time_slots(branch, date, requested_guests=1):
             })
 
             dt += timedelta(minutes=30)
-
-    if date == timezone.localdate():
-        current_time = timezone.localtime().time()
-        slots = [slot for slot in slots if slot['time'] > current_time]
 
     return slots
 

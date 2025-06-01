@@ -67,6 +67,8 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.menu_item.name}"
 
     def subtotal(self):
+        if self.menu_item.price is None:
+            return 0
         return self.menu_item.price * self.quantity
 
 
@@ -180,6 +182,8 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.menu_item.name}"
 
     def subtotal(self):
+        if self.price is None:
+            return 0
         return self.price * self.quantity
 
 class ContactMessage(models.Model):

@@ -16,7 +16,7 @@
     <!-- Checkout Form -->
     <div class="col-lg-6">
       <div class="card custom-cart-card p-4 w-100 auth-container">
-        <h4 class="auth-title with-divider">Orderer Information</h4>
+        <h4 class="auth-title with-divider">Order Information</h4>
 
         {% if form.errors and request.method == 'POST' %}
           <div class="text-danger mb-3" style="font-size: 0.75rem; color: #dc3545 !important;">
@@ -53,8 +53,9 @@
                   {% endfor %}
                 </div>
               </div>
+
               {% if form.pickup_branch.errors %}
-                <small class="text-danger d-block" style="font-size: 0.75rem;">
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
                   {{ form.pickup_branch.errors|join:", " }}
                 </small>
               {% else %}
@@ -144,14 +145,16 @@
 
             <!-- Pickup Branch -->
             <div class="form-group mb-3">
-              <label for="id_pickup_branch" class="form-label mb-1">
+              <label for="{{ form.pickup_branch.id_for_label }}" class="form-label mb-1">
                 Pickup Branch <span class="text-white">*</span>
               </label>
+              
               {{ form.pickup_branch }}
+              
               <div id="customDropdown" class="dropdown"></div>
 
               {% if form.pickup_branch.errors %}
-                <small class="text-danger d-block" style="font-size: 0.75rem;">
+                <small class="text-danger d-block" style="font-size: 0.75rem; color: #dc3545 !important;">
                   {{ form.pickup_branch.errors|join:", " }}
                 </small>
               {% else %}
