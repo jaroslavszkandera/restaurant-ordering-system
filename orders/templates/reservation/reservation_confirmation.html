@@ -15,12 +15,7 @@
     <p><strong>Phone:</strong> {{ reservation.mobile }}</p>
     <p><strong>Email:</strong> {{ reservation.email }}</p>
     <p><strong>Date:</strong> {{ reservation.date }}</p>
-    <p><strong>Time:</strong> 
-      {% if reservation.time_slot|stringformat:"H:i" == "12:00" %}
-        12:00
-      {% else %}
-        {{ reservation.time_slot }}
-      {% endif %}
+    <p><strong>Time:</strong> {{ reservation.time_slot|time:"g:i A" }}</p>
     <p><strong>Guests:</strong> {{ reservation.guests }} guests</p>
     <hr style="border-top: 1.5px solid white ; margin-top: 0.25rem; margin-bottom: 1.5rem;">
     <p><strong>Branch:</strong> {{ reservation.branch.name }}</p>
